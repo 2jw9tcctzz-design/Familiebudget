@@ -1,115 +1,236 @@
-
 <!DOCTYPE html>
 <html lang="da">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0000A0" />
+  <meta name="theme-color" content="#14243D" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Stabli" />
+  <meta name="apple-mobile-web-app-title" content="BudgetBuddy" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
-  <title>Familie-budget-fordeler – Stabli 6 – Offline</title>
+  <title>BudgetBuddy – familiens budgetfordeler</title>
   <style>
     :root{
-      --blue:#0000A0;
-      --dark:#0A1F44;
-      --bg:#EFF4FA;
-      --card:#ffffff;
-      --border:#dbe3ef;
-      --muted:#64748b;
-      --soft:#f8fafc;
-      --warn:#fef3c7;
-      --good:#ecfdf5;
-      --shadow:0 10px 24px rgba(15,23,42,0.08);
-      --r:22px;
+      --ink:#14243D; --ink2:#2B3E5C; --paper:#EDF1F6; --card:#FFFFFF;
+      --copper:#B96A34; --copper-deep:#9E571F; --copper-tint:#F5E6D8;
+      --teal:#2E7D6B; --teal-tint:#E2F0EC;
+      --muted:#64748B; --line:#E4E9F0; --danger:#B4432E;
+      --serif:'Caladea','Cambria',Georgia,'Times New Roman',serif;
+      --sans:'Carlito','Calibri','Segoe UI',system-ui,-apple-system,sans-serif;
     }
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{overflow-x:hidden}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(circle at top right, rgba(0,0,160,0.08), transparent 24%),linear-gradient(to bottom,#EFF4FA,#FFFFFF,#F8FAFD);color:#0f172a}
-    .app{max-width:1280px;margin:0 auto;padding:16px 16px 40px}
-    .grid{display:grid;gap:16px}
-    .hero{grid-template-columns:1.3fr .7fr}
-    .card{background:rgba(255,255,255,.96);border:1px solid var(--border);border-radius:30px;box-shadow:var(--shadow);overflow:hidden}
-    .card-header{padding:20px 24px 8px}
-    .card-body{padding:0 24px 24px}
-    .card-topline{height:8px;background:var(--blue);border-radius:30px 30px 0 0;width:100%}
-    .dark-card{background:var(--dark);color:#fff;border:none}
-    .hero-copy{display:flex;justify-content:space-between;gap:16px;align-items:flex-end}
-    .badge{display:inline-block;background:#F4F7FF;border:1px solid #D9E3FF;color:var(--blue);padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
-    .chip{background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;color:#475569;box-shadow:0 1px 4px rgba(15,23,42,.05)}
-    h1{margin:0;font-size:40px;line-height:1.05;color:var(--dark)}
-    p.lead{margin:12px 0 0;color:#475569;max-width:820px;line-height:1.6}
-    .btnrow{display:flex;gap:8px;flex-wrap:wrap}
-    button,.btn{border-radius:18px;border:1px solid #cbd5e1;background:#fff;padding:10px 14px;font-weight:600;cursor:pointer}
-    .btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
-    .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;border:1px solid var(--border);padding:6px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(15,23,42,.04);margin:20px 0}
-    .hero-main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:center}
-    .hero-actions{margin-top:18px}
-    .hero-figure{display:flex;justify-content:center;align-items:center}
-    .hero-figure-card{width:100%;max-width:320px;border:1px solid #D9E3FF;border-radius:22px;padding:12px;background:linear-gradient(180deg,#F7F9FF 0%,#EEF4FF 100%);box-shadow:0 8px 18px rgba(15,23,42,.06)}
-    .hero-figure-card img{display:block;width:100%;height:auto;aspect-ratio:1.586 / 1;max-height:202px;object-fit:contain;border-radius:16px}
-    .tab{padding:12px 10px;border-radius:18px;text-align:center;font-weight:600;color:#334155;cursor:pointer}
-    .tab.active{background:var(--blue);color:#fff}
-    .section{display:none}
-    .section.active{display:block}
-    .two{grid-template-columns:1fr 1fr}
-    .stats{display:grid;gap:12px}
-    .stat{border:1px solid var(--border);border-radius:24px;padding:16px;background:#fff;color:#0f172a}
-    .stat .label{font-size:14px;color:#64748b}
-    .stat .value{font-size:30px;font-weight:700;margin-top:4px;color:#0f172a;line-height:1.15}.value.value-sm{font-size:24px}.value.value-xs{font-size:20px}
-    .stat .hint{font-size:12px;color:#64748b;margin-top:8px}
-    .field{display:flex;flex-direction:column;gap:8px}
-    .field label{font-size:14px;font-weight:600;color:#334155}
-    input, textarea, select{height:44px;border:1px solid #cbd5e1;border-radius:16px;padding:0 12px;background:#fff;font:inherit}
-    .help{font-size:12px;color:#64748b;line-height:1.5}
-    .subgrid{display:grid;gap:20px}
-    .outlay{padding:20px}
-    .outlay-row{display:grid;grid-template-columns:1fr 140px 44px;gap:8px;margin-bottom:8px}
-    .mini{font-size:12px;color:#64748b}
-    .mini-box{border:1px solid var(--border);border-radius:16px;background:#f8fafc;padding:12px}
-    .transfer-list{display:grid;gap:12px}
-    .transfer{display:grid;grid-template-columns:1fr 44px 1fr 140px;gap:12px;align-items:center;border:1px solid var(--border);padding:16px;border-radius:22px;background:#fff}
-    .transfer.subtle{background:#f8fafc}
-    .transfer .caption{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8}
-    .transfer .amt{background:#F5F8FF;border-radius:16px;padding:10px 12px;text-align:right;font-weight:700;color:var(--dark)}
-    .info-box{border:1px solid #fcd34d;background:#fffbeb;border-radius:22px;padding:14px}
-    .checks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:14px}
-    .ok{color:#15803d}.bad{color:#be123c}
-    .balance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .balance-card{border:1px solid var(--border);border-radius:28px;padding:18px;background:#f8fafc}
-    .inline2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .history-item{display:grid;grid-template-columns:repeat(6,1fr) auto;gap:12px;border:1px solid var(--border);border-radius:24px;padding:16px;align-items:start}
-    .funding-card{border:1px solid var(--border);border-radius:22px;padding:16px;background:#f8fafc}
-    .funding-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:14px}
-    .funding-cell{background:#fff;border-radius:12px;padding:12px}
-    .muted{color:#64748b}
-    .goodbg{background:#ecfdf5}.warnbg{background:#fffbeb}.darkbg{background:#0A1F44;color:white}.goodbg .label,.goodbg .hint,.warnbg .label,.warnbg .hint{color:#475569}.goodbg .value,.warnbg .value{color:#0f172a}.darkbg .label,.darkbg .hint{color:rgba(255,255,255,.75)}.darkbg .value{color:#fff}
-    .dark-card .stat{color:#0f172a}.dark-card .stat .label,.dark-card .stat .hint{color:#475569}.dark-card .stat .value{color:#0f172a}.dark-card .stat.darkbg{color:#fff}.dark-card .stat.darkbg .label,.dark-card .stat.darkbg .hint{color:rgba(255,255,255,.75)}.dark-card .stat.darkbg .value{color:#fff}
-    @media (max-width: 980px){
-      .tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scrollbar-width:none;gap:6px;max-width:100%}
-      .tabs::-webkit-scrollbar{display:none}
-      .tab{flex:0 0 auto;white-space:nowrap;padding:12px 18px;scroll-snap-align:center}
-      .outlay{padding:16px}
-      .grid>*{min-width:0}
-      .grid .stat{padding:14px}
-      .outlay-row{grid-template-columns:1fr 96px 38px;gap:6px;align-items:center}
-      .outlay-row input{height:42px;padding:0 10px}
-      .outlay-row>*{min-width:0}
-      .outlay-row input{width:100%}
-      .outlay-row button{width:38px;height:42px;padding:0;font-size:16px;line-height:1}
-      .outlay-row input[type=number]{text-align:right}
-      .hero-main{grid-template-columns:1fr}
-      .hero-figure-card{max-width:280px;margin:0 auto}
-      .hero-figure-card img{max-height:176px}
+    body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:16px}
+    button{font-family:var(--sans);cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+    button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #B96A3455;outline-offset:1px}
+    input,select{font-family:var(--sans);font-size:17px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px;width:100%;min-width:0}
+    input::placeholder{color:#9AA7B8}
+    @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 
-      .hero,.two,.balance-grid,.checks,.history-item,.funding-grid{grid-template-columns:1fr}
-      .hero-copy{flex-direction:column;align-items:flex-start}
-      .transfer{grid-template-columns:1fr}
-      h1{font-size:32px}
+    .bb-app{max-width:640px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:40px}
+
+    /* App bar */
+    .bb-appbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px}
+    .bb-burger{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4.5px;box-shadow:0 1px 2px #14243d12;flex:0 0 auto}
+    .bb-burger span{width:17px;height:2px;background:var(--ink);border-radius:2px}
+    .bb-wordmark{font-family:var(--serif);font-size:21px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+    .bb-dot{color:var(--copper)}
+    .bb-monthpill{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 13px;font-size:13.5px;font-weight:700;color:var(--ink2);box-shadow:0 1px 2px #14243d12;white-space:nowrap;flex:0 1 auto;min-width:0}
+    .bb-monthpill .bb-chev{width:13px;height:13px;display:inline-flex;color:var(--muted)}
+    .bb-monthpill .bb-chev svg{width:13px;height:13px}
+
+    /* Drawer */
+    .bb-scrim{position:fixed;inset:0;background:#0c1626a8;z-index:40}
+    .bb-drawer{position:fixed;top:0;left:0;bottom:0;width:288px;max-width:84vw;background:var(--paper);border-radius:0 24px 24px 0;box-shadow:24px 0 60px -20px #0c1626aa;padding:22px 16px;display:flex;flex-direction:column;gap:6px;z-index:50;transform:translateX(-105%);transition:transform .22s ease}
+    .bb-drawer.open{transform:translateX(0)}
+    .bb-brand{padding:6px 10px 16px}
+    .bb-wm{font-family:var(--serif);font-size:24px;font-weight:700}
+    .bb-sub{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
+    .bb-navitem{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:14px;font-size:15px;font-weight:600;color:var(--ink2);text-align:left;width:100%}
+    .bb-navitem .bb-ic{width:21px;height:21px;color:var(--muted);flex:0 0 auto;display:inline-flex}
+    .bb-navitem .bb-ic svg{width:21px;height:21px}
+    .bb-navitem.active{background:var(--card);color:var(--ink);box-shadow:0 4px 14px -8px #14243d40;position:relative}
+    .bb-navitem.active::before{content:"";position:absolute;left:-16px;top:12px;bottom:12px;width:4px;border-radius:0 4px 4px 0;background:var(--copper)}
+    .bb-navitem.active .bb-ic{color:var(--copper)}
+    .bb-navprog{margin-left:auto;display:flex;align-items:center;gap:7px}
+    .bb-npt{font-size:11.5px;font-weight:700;color:var(--copper-deep)}
+    .bb-track{width:34px;height:5px;border-radius:3px;background:var(--copper-tint);overflow:hidden}
+    .bb-track i{display:block;height:100%;background:var(--copper)}
+    .bb-quickitem{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;font-size:14.5px;font-weight:700;color:var(--ink);background:var(--copper-tint);border:1px dashed #d9a878;margin-top:4px;width:100%;text-align:left}
+    .bb-qp{width:22px;height:22px;border-radius:50%;background:var(--copper);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .bb-qp svg{width:13px;height:13px}
+    .bb-qsek{margin-left:auto;font-size:10.5px;color:var(--copper-deep);font-weight:700;letter-spacing:.5px}
+    .bb-navfoot{margin-top:auto;padding:12px;font-size:12px;color:var(--muted)}
+
+    /* Screens */
+    .bb-main{padding:6px 18px 0}
+    .bb-screen{display:flex;flex-direction:column;gap:14px}
+    .bb-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+    .bb-h2{font-family:var(--serif);font-size:25px;font-weight:700;margin-top:-8px}
+    .bb-h3{font-family:var(--serif);font-size:21px;font-weight:700}
+
+    .bb-chip{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;padding:8px 13px;border-radius:999px;align-self:flex-start}
+    .bb-chip.ok{background:var(--teal-tint);color:var(--teal)}
+    .bb-chip.warn{background:var(--copper-tint);color:var(--copper-deep)}
+    .bb-tick{width:17px;height:17px;border-radius:50%;background:var(--teal);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .bb-tick svg{width:11px;height:11px}
+    .bb-tick.w{background:var(--copper);font-size:12px;font-weight:800}
+
+    .bb-headline{display:flex;flex-direction:column;gap:1px}
+    .bb-hl{font-size:14px;color:var(--muted);font-weight:600}
+    .bb-amt{font-family:var(--serif);font-size:44px;font-weight:700;line-height:1.05}
+    .bb-kr{font-size:20px;color:var(--muted);margin-left:5px}
+
+    .bb-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 6px 20px -14px #14243d40}
+    .bb-card.pad{display:flex;flex-direction:column;gap:13px}
+    .bb-cap{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .bb-cap b{font-size:15px}
+    .bb-cap span{font-size:12px;color:var(--muted);font-weight:600}
+    .bb-flowbar{height:26px;border-radius:8px;overflow:hidden;display:flex;margin-top:11px}
+    .bb-flowbar i{display:block;height:100%}
+    .bb-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-top:13px}
+    .bb-lrow{display:flex;align-items:center;gap:8px;font-size:12.5px;min-width:0}
+    .bb-sw{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+    .bb-lnm{color:var(--ink2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bb-lvl{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+    .bb-empty{color:var(--muted);font-size:14px;padding:8px 0}
+
+    .bb-cta{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--copper);color:#fff;font-weight:700;font-size:16px;padding:16px;border-radius:16px;box-shadow:0 10px 22px -10px #b96a3488;width:100%}
+    .bb-cta.compact{padding:13px;font-size:14.5px}
+    .bb-ctarow{display:grid;grid-template-columns:1fr auto;gap:10px}
+    .bb-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);font-weight:700;font-size:14px;padding:13px 16px;border-radius:14px}
+    .bb-ghost.danger{color:var(--danger);border-color:#e6c4bb}
+    .bb-ghost.full{width:100%}
+    .bb-note{font-size:12.5px;color:var(--muted);line-height:1.45}
+    .bb-note.top{margin-top:-6px}
+
+    /* Stepper */
+    .bb-stepper{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .bb-step{display:flex;align-items:center;gap:7px;padding:4px 2px}
+    .bb-snum{width:27px;height:27px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--card);border:1px solid var(--line);color:var(--muted)}
+    .bb-snum svg{width:13px;height:13px}
+    .bb-stx{font-size:13px;font-weight:700;color:var(--muted)}
+    .bb-step.on .bb-snum{background:var(--copper);border-color:var(--copper);color:#fff}
+    .bb-step.on .bb-stx{color:var(--ink)}
+    .bb-step.done .bb-snum{background:var(--teal);border-color:var(--teal);color:#fff}
+    .bb-step.done .bb-stx{color:var(--teal)}
+    .bb-sline{width:14px;height:2px;background:var(--line);border-radius:2px;flex:0 0 auto}
+    .bb-sline.fill{background:var(--teal)}
+
+    /* Fields */
+    .bb-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .bb-field label{font-size:12.5px;font-weight:700;color:var(--ink2)}
+    .bb-help{font-size:11.5px;color:var(--muted);line-height:1.4}
+    .bb-inline2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .bb-inline2>*{min-width:0}
+    .bb-subtot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px}
+    .bb-subtot span{font-size:13.5px;color:var(--muted);font-weight:600}
+    .bb-subtot b{font-family:var(--serif);font-size:20px}
+    .bb-mini{font-size:12.5px;font-weight:700;color:var(--copper-deep);background:var(--copper-tint);padding:7px 11px;border-radius:999px;white-space:nowrap}
+    .bb-osub{font-size:12px;color:var(--muted);margin-top:-6px}
+    .bb-orow{display:grid;grid-template-columns:1fr 96px 38px;gap:6px;align-items:center}
+    .bb-orow>*{min-width:0}
+    .bb-orow input[type=number]{text-align:right}
+    .bb-orow button{width:38px;height:44px;border-radius:11px;background:var(--paper);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+    .bb-orow button svg{width:14px;height:14px}
+    .bb-orow button:disabled{opacity:.35;cursor:default}
+
+    /* Transfers */
+    .bb-tgroup{display:flex;flex-direction:column;gap:8px}
+    .bb-ghead{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+    .bb-gdot{width:9px;height:9px;border-radius:3px;flex:0 0 auto}
+    .bb-trow{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:12px 14px;display:flex;align-items:center;gap:11px;box-shadow:0 3px 12px -10px #14243d2a}
+    .bb-tinfo{min-width:0;flex:1 1 auto}
+    .bb-tnm{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bb-tsub{font-size:11.5px;color:var(--muted)}
+    .bb-tamt{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto}
+    .bb-cp{width:34px;height:34px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
+    .bb-cp svg{width:15px;height:15px}
+    .bb-pocketbox{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:11px 14px;font-size:13px;color:var(--ink2)}
+    .bb-pocketbox b{font-size:15px;color:var(--ink)}
+    .bb-caphint{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+    .bb-infobox{background:var(--teal-tint);border:1px solid #bfded5;border-radius:15px;padding:13px 15px;font-size:13.5px;color:#2b5f52;line-height:1.5}
+
+    .bb-checkbanner{display:flex;align-items:center;gap:11px;background:var(--teal-tint);border:1px solid #bfded5;border-radius:15px;padding:12px 15px;width:100%;text-align:left}
+    .bb-checkbanner.warn{background:var(--copper-tint);border-color:#e3c5a8}
+    .bb-cbic{width:27px;height:27px;border-radius:50%;background:var(--teal);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;font-weight:800}
+    .bb-checkbanner.warn .bb-cbic{background:var(--copper)}
+    .bb-cbic svg{width:14px;height:14px}
+    .bb-cbt{display:flex;flex-direction:column;min-width:0}
+    .bb-cbt b{font-size:13.5px;color:var(--teal)}
+    .bb-checkbanner.warn .bb-cbt b{color:var(--copper-deep)}
+    .bb-cbt span{font-size:11.5px;color:#4c7a6e}
+    .bb-checkbanner.warn .bb-cbt span{color:#8a6a4c}
+    .bb-cbchev{margin-left:auto;color:#4c7a6e;flex:0 0 auto;transition:transform .18s ease;display:inline-flex}
+    .bb-cbchev svg{width:15px;height:15px}
+    .bb-cbchev.open{transform:rotate(180deg)}
+    .bb-checkrow{font-size:13px;padding:4px 0}
+    .bb-checkrow.ok{color:var(--teal)}
+    .bb-checkrow.bad{color:var(--danger);font-weight:700}
+    .bb-kv{background:var(--paper);border-radius:11px;padding:9px 11px;display:flex;flex-direction:column;gap:2px;min-width:0}
+    .bb-kv span{font-size:11px;color:var(--muted);font-weight:600}
+    .bb-kv b{font-size:14.5px;font-variant-numeric:tabular-nums}
+    .bb-kv b.ok{color:var(--teal)} .bb-kv b.warn{color:var(--danger)}
+    .bb-sharegrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .bb-sharegrid .bb-cta{grid-column:1 / -1}
+
+    /* Konti */
+    .bb-balgrid{display:grid;grid-template-columns:1fr;gap:13px}
+    .bb-balhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .bb-ballbl{font-size:13px;color:var(--muted);font-weight:600}
+    .bb-balamt{font-family:var(--serif);font-size:26px;font-weight:700;margin-top:2px}
+    .bb-balamt.neg{color:var(--danger)}
+    .bb-balic{width:38px;height:38px;border-radius:12px;background:var(--paper);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--copper);flex:0 0 auto}
+    .bb-balic svg{width:18px;height:18px}
+    .bb-fine{font-size:11.5px;color:var(--muted)}
+    .bb-fine.warn{color:#b45309}
+
+    /* Dashboard */
+    .bb-statgrid{display:grid;grid-template-columns:1fr;gap:12px}
+    .bb-stat .bb-sk{font-size:13px;color:var(--muted);font-weight:600}
+    .bb-stat .bb-sv{font-family:var(--serif);font-size:29px;font-weight:700;line-height:1.15}
+    .bb-stat .bb-sv.sm{font-size:24px}
+    .bb-stat .bb-sv.xs{font-size:20px}
+    .bb-stat .bb-sh{font-size:11.5px;color:var(--muted)}
+    .bb-stat.dark{background:var(--ink);border-color:var(--ink)}
+    .bb-stat.dark .bb-sk,.bb-stat.dark .bb-sh{color:#9fb0c9}
+    .bb-stat.dark .bb-sv{color:#fff}
+    .bb-stat.good .bb-sv{color:var(--teal)}
+    .bb-stat.warnv .bb-sv{color:var(--copper-deep)}
+    .bb-hrow{display:flex;align-items:center;gap:11px;border-top:1px solid var(--line);padding:11px 0 3px}
+    .bb-hrow:first-of-type{border-top:none}
+    .bb-hmain{min-width:0;flex:1 1 auto}
+    .bb-hmonth{font-weight:700;font-size:14.5px}
+    .bb-hdet{font-size:11.5px;color:var(--muted);margin-top:1px}
+
+    /* Peek FAB (live-chat style, hugs right edge) */
+    .bb-peek{position:fixed;right:0;top:62%;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:14px 0 0 14px;padding:12px 12px 12px 13px;box-shadow:-8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
+    .bb-peekplus{width:21px;height:21px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+    .bb-peekplus svg{width:12px;height:12px}
+    .bb-peektxt{letter-spacing:.3px}
+
+    /* Bottom sheets */
+    .bb-sheet{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--paper);border-radius:24px 24px 0 0;padding:12px 20px 26px;display:flex;flex-direction:column;gap:13px;max-width:640px;margin:0 auto;box-shadow:0 -20px 50px -20px #0c1626aa}
+    .bb-sheethandle{width:44px;height:5px;border-radius:3px;background:#C7D0DC;margin:0 auto 2px}
+    .bb-ptoggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .bb-ptoggle button{padding:12px;border-radius:13px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--ink2)}
+    .bb-ptoggle button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+    /* Desktop */
+    @media (min-width: 900px){
+      .bb-app{max-width:1060px}
+      .bb-main{padding:6px 26px 0}
+      .bb-balgrid{grid-template-columns:1fr 1fr}
+      .bb-statgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .bb-legend{grid-template-columns:repeat(3,1fr)}
+      .bb-sharegrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .bb-sharegrid .bb-cta{grid-column:auto}
+      .bb-screen{max-width:none}
+      .bb-tgroup{max-width:640px}
+      .bb-card{max-width:none}
     }
+
   </style>
 </head>
 <body>
@@ -17314,6 +17435,7 @@ const initialMonth = {
     foodOverdraft: "",
     mastercardAmount: "",
     pocketMoneyEach: "",
+    outlaysConfirmed: false,
 };
 const sampleHistory = [
     { monthLabel: "Januar 2026", totalIncome: 76500, totalNeedBeforeBolig: 73500, boligAmount: 3000, mastercard: 4200, foodOverdraft: 0, outlays: 1200, equalLeftEach: 1500 },
@@ -17322,37 +17444,48 @@ const sampleHistory = [
 const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
 const currentYear = new Date().getFullYear();
 const yearOptions = Array.from({ length: 9 }, (_, i) => String(currentYear - 2 + i));
-function Stat({ label, value, hint, tone = "default" }) {
-    let extra = "";
-    if (tone === "good")
-        extra = "goodbg";
-    if (tone === "warn")
-        extra = "warnbg";
-    if (tone === "dark")
-        extra = "darkbg";
-var __vlen = (value == null ? "" : String(value)).length;
-    var __vcls = "value" + (__vlen >= 13 ? " value-xs" : (__vlen >= 10 ? " value-sm" : ""));
-    return React.createElement("div", { className: `stat ${extra}` },
-        React.createElement("div", { className: "label" }, label),
-        React.createElement("div", { className: __vcls }, value),
-        hint ? React.createElement("div", { className: "hint" }, hint) : null);
+/* ---------- small building blocks ---------- */
+function Icon({ name }) {
+    const p = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+    switch (name) {
+        case 'home': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("rect", { x: "3", y: "3", width: "8", height: "8", rx: "2" }),
+            React.createElement("rect", { x: "13", y: "3", width: "8", height: "5", rx: "2" }),
+            React.createElement("rect", { x: "13", y: "11", width: "8", height: "10", rx: "2" }),
+            React.createElement("rect", { x: "3", y: "13", width: "8", height: "8", rx: "2" }));
+        case 'input': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M12 20V10M6 20v-4m12 4V6" }));
+        case 'swap': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M7 7h11l-3-3m3 3-3 3M17 17H6l3-3m-3 3 3 3" }));
+        case 'card': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("rect", { x: "3", y: "6", width: "18", height: "13", rx: "2" }),
+            React.createElement("path", { d: "M3 10h18" }));
+        case 'chart': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M4 19V5m0 14h16M8 15l3-4 3 2 4-6" }));
+        case 'gear': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("circle", { cx: "12", cy: "12", r: "3" }),
+            React.createElement("path", { d: "M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h.01a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z" }));
+        case 'copy': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("rect", { x: "9", y: "9", width: "11", height: "11", rx: "2" }),
+            React.createElement("path", { d: "M5 15V5a2 2 0 0 1 2-2h10" }));
+        case 'trash': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" }));
+        case 'plus': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M12 5v14M5 12h14" }));
+        case 'check': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M4 12.5 9.5 18 20 6" }));
+        case 'chev': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "m6 9 6 6 6-6" }));
+        case 'x': return React.createElement("svg", { viewBox: "0 0 24 24", ...p },
+            React.createElement("path", { d: "M6 6l12 12M18 6 6 18" }));
+        default: return null;
+    }
 }
-function NumberField({ label, value, onChange, helper }) {
-    return React.createElement("div", { className: "field" },
+function Field({ label, value, onChange, helper, type = "number", placeholder }) {
+    return React.createElement("div", { className: "bb-field" },
         React.createElement("label", null, label),
-        React.createElement("input", { type: "number", value: value, onChange: e => onChange(e.target.value) }),
-        helper ? React.createElement("div", { className: "help" }, helper) : null);
-}
-function TransferLine({ from, to, amount, subtle }) {
-    return React.createElement("div", { className: `transfer ${subtle ? 'subtle' : ''}` },
-        React.createElement("div", null,
-            React.createElement("div", { className: "caption" }, "Fra"),
-            React.createElement("div", null, from)),
-        React.createElement("div", { style: { textAlign: 'center' } }, "\u2194"),
-        React.createElement("div", { style: { textAlign: 'right' } },
-            React.createElement("div", { className: "caption" }, "Til"),
-            React.createElement("div", null, to)),
-        React.createElement("div", { className: "amt" }, formatCurrency(amount)));
+        React.createElement("input", { type: type, inputMode: type === 'number' ? 'decimal' : undefined, placeholder: placeholder, value: value, onChange: e => onChange(e.target.value) }),
+        helper ? React.createElement("div", { className: "bb-help" }, helper) : null);
 }
 function App() {
     const [data, setData] = useState(() => {
@@ -17361,7 +17494,7 @@ function App() {
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (parsed && parsed.people && parsed.categories)
-                    return parsed;
+                    return { ...initialMonth, ...parsed };
             }
         }
         catch { }
@@ -17379,8 +17512,17 @@ function App() {
         catch { }
         return sampleHistory;
     });
-    const [tab, setTab] = useState('input');
+    const [screen, setScreen] = useState('home');
+    const [drawer, setDrawer] = useState(false);
+    const [step, setStep] = useState(1);
+    const [sheet, setSheet] = useState(false); // quick udlæg sheet
+    const [monthSheet, setMonthSheet] = useState(false); // month/year picker
+    const [checksOpen, setChecksOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [savedFlash, setSavedFlash] = useState(false);
+    const [qPerson, setQPerson] = useState('anders');
+    const [qText, setQText] = useState('');
+    const [qAmount, setQAmount] = useState('');
     useEffect(() => {
         try {
             localStorage.setItem("familie-budget-current-v1", JSON.stringify(data));
@@ -17393,6 +17535,7 @@ function App() {
         }
         catch { }
     }, [history]);
+    /* ---------- CALC ENGINE — ported verbatim ---------- */
     const calc = useMemo(() => {
         const toInt = (v) => Math.round(parse(v));
         const distributeExact = (total, weights) => {
@@ -17535,6 +17678,7 @@ function App() {
             actualBoligContribution,
             overskudEfterBehovOgUdlæg: actualBoligContribution,
             equalLeftEach,
+            pocketEach,
             transfers: {
                 anders: {
                     regninger: peopleByCategoryToPerson.regninger[0],
@@ -17584,6 +17728,7 @@ function App() {
             postTransferLeft, imbalance, capacities: { anders: andersCapacity, tina: tinaCapacity }, controls
         };
     }, [data]);
+    /* ---------- actions — ported verbatim ---------- */
     const setPersonField = (personKey, field, value) => setData(prev => ({ ...prev, people: { ...prev.people, [personKey]: { ...prev.people[personKey], [field]: value } } }));
     const setCategoryField = (key, field, value) => setData(prev => ({ ...prev, categories: { ...prev.categories, [key]: { ...prev.categories[key], [field]: value } } }));
     const addOutlayLine = (personKey) => setData(prev => ({ ...prev, people: { ...prev.people, [personKey]: { ...prev.people[personKey], outlayLines: [...prev.people[personKey].outlayLines, { id: `${personKey}-${Date.now()}-${Math.random()}`, text: "", amount: "" }] } } }));
@@ -17608,10 +17753,13 @@ function App() {
             const filtered = prev.filter((x) => x.monthLabel !== entry.monthLabel);
             return [...filtered, entry].sort((a, b) => a.monthLabel.localeCompare(b.monthLabel));
         });
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 1800);
     };
     const resetDefaults = () => {
         if (window.confirm("Er du sikker? Alle indtastninger for denne m\u00e5ned nulstilles. Gemte m\u00e5neder i historikken r\u00f8res ikke.")) {
             setData(initialMonth);
+            setStep(1);
         }
     };
     const deleteSavedMonth = (monthLabel) => {
@@ -17620,23 +17768,17 @@ function App() {
     const exportHistoryCsv = () => {
         const headers = ["Måned", "Indkomst", "Samlet behov før bolig", "Til/fra boligindretning", "Mastercard", "Madovertræk", "Udlæg", "Lommepenge pr. person"];
         const rows = history.map((row) => [
-            row.monthLabel,
-            row.totalIncome,
-            row.totalNeedBeforeBolig,
-            row.boligAmount,
-            row.mastercard,
-            row.foodOverdraft,
-            row.outlays,
-            row.equalLeftEach,
+            row.monthLabel, row.totalIncome, row.totalNeedBeforeBolig, row.boligAmount,
+            row.mastercard, row.foodOverdraft, row.outlays, row.equalLeftEach,
         ]);
         const csv = [headers, ...rows]
             .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(";"))
             .join("\n");
-        const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `stabli-historik-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `budgetbuddy-historik-${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -17644,13 +17786,9 @@ function App() {
     };
     const buildSimpleTransferText = (person = "all") => {
         const boligText = calc.transfers.bolig.budget > 0
-            ? `
-
-Boligkontoen skyder ind: ${formatCurrency(calc.transfers.bolig.budget)}`
+            ? `\n\nBoligkontoen skyder ind: ${formatCurrency(calc.transfers.bolig.budget)}`
             : calc.actualBoligContribution > 0
-                ? `
-
-Overskud til boligkonto: ${formatCurrency(calc.actualBoligContribution)}`
+                ? `\n\nOverskud til boligkonto: ${formatCurrency(calc.actualBoligContribution)}`
                 : "";
         const andersText = `Anders overfører i alt: ${formatCurrency(calc.transfers.anders.total)}
 - ${formatCurrency(calc.transfers.anders.regninger)} til Fælleskonto til regninger
@@ -17669,18 +17807,10 @@ Overskud til boligkonto: ${formatCurrency(calc.actualBoligContribution)}`
 - ${formatCurrency(calc.transfers.tina.bolig)} til Fælleskonto til opsparing til boligindretning
 - ${formatCurrency(calc.transfers.tina.pocket)} bliver stående som lommepenge`;
         if (person === "anders")
-            return `${data.monthLabel || "Måned"}
-
-${andersText}${boligText}`;
+            return `${data.monthLabel || "Måned"}\n\n${andersText}${boligText}`;
         if (person === "tina")
-            return `${data.monthLabel || "Måned"}
-
-${tinaText}${boligText}`;
-        return `${data.monthLabel || "Måned"}
-
-${andersText}
-
-${tinaText}${boligText}`;
+            return `${data.monthLabel || "Måned"}\n\n${tinaText}${boligText}`;
+        return `${data.monthLabel || "Måned"}\n\n${andersText}\n\n${tinaText}${boligText}`;
     };
     const copySimpleTransferText = async (person) => {
         const text = buildSimpleTransferText(person);
@@ -17738,276 +17868,435 @@ Anders overfører fra Anders' lønkonto:
     const updateMonthYear = (month, year) => {
         setData((prev) => ({ ...prev, monthLabel: month ? `${month} ${year || currentYear}` : "" }));
     };
-    return React.createElement("div", { className: "app" },
-        React.createElement("div", { className: "grid hero" },
-            React.createElement("div", { className: "card" },
-                React.createElement("div", { className: "card-topline" }),
-                React.createElement("div", { className: "card-body", style: { paddingTop: 24 } },
-                    React.createElement("div", { className: "hero-main" },
-                        React.createElement("div", null,
-                            React.createElement("span", { className: "badge" }, "Familiebudget \u00B7 f\u00E6llespulje-princip"),
-                            React.createElement("h1", { style: { marginTop: 14 } }, "Fordel m\u00E5nedens indkomst mellem jeres konti"),
-                            React.createElement("p", { className: "lead" }, "F\u00E5 \u00E9t samlet overblik over familiens \u00F8konomi p\u00E5 f\u00E5 minutter. Appen hj\u00E6lper jer med at indtaste m\u00E5nedens indkomst, Mastercard, udl\u00E6g og faste behov \u2014 og oms\u00E6tter det til en klar fordelingsplan for hver konto, hver person og hver overf\u00F8rsel."),
-                            React.createElement("div", { className: "btnrow hero-actions" },
-                                React.createElement("button", { onClick: exportSummary }, copied ? 'Kopieret' : 'Kopiér opsummering'),
-                                React.createElement("button", { onClick: saveCurrentMonth }, "Gem m\u00E5ned i historik"),
-                                React.createElement("button", { className: "btn-primary", onClick: resetDefaults }, "Nulstil")),
-                            React.createElement("p", { className: "help", style: { marginTop: 10 } }, "Alle indtastninger gemmes automatisk p\\u00e5 denne enhed \\u2013 du kan trygt lukke siden og forts\\u00e6tte senere.")),
-                        React.createElement("div", { className: "hero-figure" },
-                            React.createElement("div", { className: "hero-figure-card" },
-                                React.createElement("svg", { viewBox: "0 0 320 202", role: "img", "aria-label": "Illustration af budgetfordeling", style: { display: 'block', width: '100%', height: 'auto', maxHeight: 202, borderRadius: 16 } },
-                                    React.createElement("rect", { width: "320", height: "202", rx: "16", fill: "#0A1F44" }),
-                                    React.createElement("rect", { x: "24", y: "26", width: "140", height: "88", rx: "12", fill: "#0000A0" }),
-                                    React.createElement("rect", { x: "38", y: "42", width: "44", height: "10", rx: "5", fill: "#ffffff", opacity: "0.9" }),
-                                    React.createElement("rect", { x: "38", y: "60", width: "80", height: "8", rx: "4", fill: "#ffffff", opacity: "0.45" }),
-                                    React.createElement("rect", { x: "38", y: "88", width: "34", height: "12", rx: "6", fill: "#ffffff", opacity: "0.85" }),
-                                    React.createElement("circle", { cx: "230", cy: "60", r: "30", fill: "#ffffff", opacity: "0.12" }),
-                                    React.createElement("circle", { cx: "230", cy: "60", r: "21", fill: "#ffffff", opacity: "0.9" }),
-                                    React.createElement("text", { x: "230", y: "67", textAnchor: "middle", fontSize: "18", fontWeight: "700", fill: "#0A1F44" }, "kr"),
-                                    React.createElement("path", { d: "M96 130 L96 150 L60 150", stroke: "#93A9FF", strokeWidth: "3", fill: "none" }),
-                                    React.createElement("path", { d: "M96 130 L96 160 L160 160", stroke: "#93A9FF", strokeWidth: "3", fill: "none" }),
-                                    React.createElement("path", { d: "M96 130 L96 150 L260 150 L260 158", stroke: "#93A9FF", strokeWidth: "3", fill: "none" }),
-                                    React.createElement("rect", { x: "34", y: "150", width: "52", height: "30", rx: "8", fill: "#EFF4FA" }),
-                                    React.createElement("rect", { x: "134", y: "150", width: "52", height: "30", rx: "8", fill: "#EFF4FA" }),
-                                    React.createElement("rect", { x: "234", y: "158", width: "52", height: "30", rx: "8", fill: "#EFF4FA" }),
-                                    React.createElement("rect", { x: "44", y: "161", width: "32", height: "8", rx: "4", fill: "#0000A0", opacity: "0.75" }),
-                                    React.createElement("rect", { x: "144", y: "161", width: "32", height: "8", rx: "4", fill: "#0000A0", opacity: "0.75" }),
-                                    React.createElement("rect", { x: "244", y: "169", width: "32", height: "8", rx: "4", fill: "#0000A0", opacity: "0.75" }))))))),
-            React.createElement("div", { className: "card dark-card" },
-                React.createElement("div", { className: "card-body", style: { paddingTop: 24 } },
-                    React.createElement("div", { style: { fontSize: 14, color: '#bfdbfe' } }, "M\u00E5nedens status"),
-                    React.createElement("div", { style: { fontSize: 34, fontWeight: 700, marginTop: 4 } }, data.monthLabel || '—'),
-                    React.createElement("div", { className: "stats", style: { marginTop: 18 } },
-                        React.createElement(Stat, { label: "Samlet indkomst", value: formatCurrency(calc.totalIncome) }),
-                        React.createElement(Stat, { label: "Samlet registreret udl\u00E6g", value: formatCurrency(calc.totalOutlays), tone: calc.totalOutlays > 0 ? 'warn' : 'soft' }),
-                        React.createElement(Stat, { label: "Buffer trukket fra boligkonto", value: formatCurrency(calc.boligBufferUsed), tone: calc.boligBufferUsed > 0 ? 'warn' : 'soft' }),
-                        React.createElement(Stat, { label: "Overskud f\u00F8rt til boligkonto", value: formatCurrency(calc.actualBoligContribution), tone: calc.actualBoligContribution > 0 ? 'good' : 'soft' }),
-                        React.createElement(Stat, { label: "Tilbage p\u00E5 hver l\u00F8nkonto", value: formatCurrency(calc.equalLeftEach), hint: "Efter alle overf\u00F8rsler og boligopsparing" }))))),
-        React.createElement("div", { className: "tabs" }, [
-            ['input', 'Indtastning'],
-            ['transfers', 'Overførsler'],
-            ['balances', 'Konti'],
-            ['dashboard', 'Dashboard'],
-            ['setup', 'Opsætning'],
-        ].map(([k, label]) => React.createElement("div", { key: k, className: `tab ${tab === k ? 'active' : ''}`, onClick: () => setTab(k) }, label))),
-        React.createElement("div", { className: `section ${tab === 'input' ? 'active' : ''}` },
-            React.createElement("div", { className: "grid two" },
-                React.createElement("div", { className: "card" },
-                    React.createElement("div", { className: "card-header" },
-                        React.createElement("h3", null, "Indkomst og grundtal")),
-                    React.createElement("div", { className: "card-body subgrid" },
-                        React.createElement("div", { className: "field" },
-                            React.createElement("label", null, "M\u00E5ned"),
-                            React.createElement("select", { value: selectedMonth, onChange: e => updateMonthYear(e.target.value, selectedYear) },
-                                React.createElement("option", { value: "" }, "V\u00E6lg m\u00E5ned"),
-                                monthNames.map((month) => React.createElement("option", { key: month, value: month }, month)))),
-                        React.createElement("div", { className: "field" },
-                            React.createElement("label", null, "\u00C5r"),
-                            React.createElement("select", { value: selectedYear, onChange: e => updateMonthYear(selectedMonth, e.target.value) }, yearOptions.map((year) => React.createElement("option", { key: year, value: year }, year)))),
-                        React.createElement(NumberField, { label: "Anders' indkomst", value: data.people.anders.income, onChange: (v) => setPersonField('anders', 'income', v) }),
-                        React.createElement(NumberField, { label: "Tinas indkomst", value: data.people.tina.income, onChange: (v) => setPersonField('tina', 'income', v) }),
-                        React.createElement(NumberField, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Disse penge bliver st\u00E5ende p\u00E5 hver persons l\u00F8nkonto." }))),
-                React.createElement("div", { className: "card" },
-                    React.createElement("div", { className: "card-header" },
-                        React.createElement("h3", null, "F\u00E6lles poster")),
-                    React.createElement("div", { className: "card-body subgrid" },
-                        React.createElement(NumberField, { label: "F\u00E6lleskonto til regninger (uden Mastercard)", value: data.categories.regninger.target, onChange: (v) => setCategoryField('regninger', 'target', v) }),
-                        React.createElement(NumberField, { label: "M\u00E5nedens Mastercard-regning", value: data.mastercardAmount, onChange: (v) => setData(prev => ({ ...prev, mastercardAmount: v })), helper: "Dette bel\u00F8b l\u00E6gges oveni regningskontoens behov og betales derfra." }),
-                        React.createElement(NumberField, { label: "F\u00E6lleskonto til opsparing afdragsfrihed", value: data.categories.afdragsfrihed.target, onChange: (v) => setCategoryField('afdragsfrihed', 'target', v) }),
-                        React.createElement(NumberField, { label: "F\u00E6lleskonto til mad", value: data.categories.mad.target, onChange: (v) => setCategoryField('mad', 'target', v) }),
-                        React.createElement(NumberField, { label: "Overtr\u00E6k p\u00E5 madkonto som skal d\u00E6kkes", value: data.foodOverdraft, onChange: (v) => setData(prev => ({ ...prev, foodOverdraft: v })) }),
-                        React.createElement(NumberField, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v) }),
-                        React.createElement(NumberField, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v) })))),
-            React.createElement("div", { className: "grid two", style: { marginTop: 20 } },
-                React.createElement("div", { className: "outlay card" },
-                    React.createElement("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 } },
-                        React.createElement("div", null,
-                            React.createElement("div", { style: { fontWeight: 600 } }, "Anders' udl\u00E6g"),
-                            React.createElement("div", { className: "mini" }, "F\u00E6lles k\u00F8b betalt privat, som skal modregnes denne m\u00E5ned")),
-                        React.createElement("button", { onClick: () => addOutlayLine('anders') }, "Tilf\u00F8j linje")),
-                    React.createElement("div", { style: { marginTop: 12 } }, data.people.anders.outlayLines.map((line, index) => React.createElement("div", { key: line.id, className: "outlay-row" },
-                        React.createElement("input", { placeholder: `Udlæg ${index + 1} – fx apotek, børnetøj, gave`, value: line.text, onChange: e => updateOutlayLine('anders', line.id, 'text', e.target.value) }),
-                        React.createElement("input", { type: "number", placeholder: "Bel\u00F8b", value: line.amount, onChange: e => updateOutlayLine('anders', line.id, 'amount', e.target.value) }),
-                        React.createElement("button", { onClick: () => removeOutlayLine('anders', line.id), disabled: data.people.anders.outlayLines.length === 1 }, "\u2715")))),
-                    React.createElement("div", { className: "mini-box" },
-                        "Samlet udl\u00E6g: ",
-                        React.createElement("b", null, formatCurrency(calc.andersOutlays)))),
-                React.createElement("div", { className: "outlay card" },
-                    React.createElement("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 } },
-                        React.createElement("div", null,
-                            React.createElement("div", { style: { fontWeight: 600 } }, "Tinas udl\u00E6g"),
-                            React.createElement("div", { className: "mini" }, "F\u00E6lles k\u00F8b betalt privat, som skal modregnes denne m\u00E5ned")),
-                        React.createElement("button", { onClick: () => addOutlayLine('tina') }, "Tilf\u00F8j linje")),
-                    React.createElement("div", { style: { marginTop: 12 } }, data.people.tina.outlayLines.map((line, index) => React.createElement("div", { key: line.id, className: "outlay-row" },
-                        React.createElement("input", { placeholder: `Udlæg ${index + 1} – fx apotek, børnetøj, gave`, value: line.text, onChange: e => updateOutlayLine('tina', line.id, 'text', e.target.value) }),
-                        React.createElement("input", { type: "number", placeholder: "Bel\u00F8b", value: line.amount, onChange: e => updateOutlayLine('tina', line.id, 'amount', e.target.value) }),
-                        React.createElement("button", { onClick: () => removeOutlayLine('tina', line.id), disabled: data.people.tina.outlayLines.length === 1 }, "\u2715")))),
-                    React.createElement("div", { className: "mini-box" },
-                        "Samlet udl\u00E6g: ",
-                        React.createElement("b", null, formatCurrency(calc.tinaOutlays)))))),
-        React.createElement("div", { className: `section ${tab === 'transfers' ? 'active' : ''}` },
-            React.createElement("div", { className: "card", style: { marginBottom: 20 } },
-                React.createElement("div", { className: "card-header" },
-                    React.createElement("h3", null, "Del overf\u00F8rselsplan")),
-                React.createElement("div", { className: "card-body" },
-                    React.createElement("div", { className: "btnrow" },
-                        React.createElement("button", { onClick: exportSummary }, copied ? 'Kopieret' : 'Kopiér samlet plan'),
-                        React.createElement("button", { onClick: () => copySimpleTransferText('anders') }, "Kopi\u00E9r Anders"),
-                        React.createElement("button", { onClick: () => copySimpleTransferText('tina') }, "Kopi\u00E9r Tina"),
-                        React.createElement("button", { className: "btn-primary", onClick: openSmsPlan }, "\u00C5bn SMS/iMessage")),
-                    React.createElement("p", { className: "help", style: { marginTop: 10 } }, "SMS/iMessage \u00E5bnes med teksten udfyldt. Du skal selv v\u00E6lge modtager og trykke send."))),
-            React.createElement("div", { className: "grid two" },
-                React.createElement("div", { className: "card" },
-                    React.createElement("div", { className: "card-header" },
-                        React.createElement("h3", null, "Anders overf\u00F8rer")),
-                    React.createElement("div", { className: "card-body transfer-list" },
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "F\u00E6lleskonto til regninger", amount: calc.transfers.anders.regninger }),
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "F\u00E6lleskonto til opsparing afdragsfrihed", amount: calc.transfers.anders.afdragsfrihed }),
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "F\u00E6lleskonto til mad", amount: calc.transfers.anders.mad }),
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "Albert aktiesparekonto", amount: calc.transfers.anders.albertAsk }),
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "Emma aktiesparekonto", amount: calc.transfers.anders.emmaAsk }),
-                        React.createElement(TransferLine, { from: "Anders' l\u00F8nkonto", to: "F\u00E6lleskonto til opsparing til boligindretning", amount: calc.transfers.anders.bolig }),
-                        calc.transfers.bolig.budget > 0 ? React.createElement(TransferLine, { from: "F\u00E6lleskonto til opsparing til boligindretning", to: "F\u00E6lles budget", amount: calc.transfers.bolig.budget, subtle: true }) : null,
-                        React.createElement("div", { className: "mini-box" },
-                            React.createElement("div", { className: "muted" }, "Bliver st\u00E5ende p\u00E5 Anders' l\u00F8nkonto"),
-                            React.createElement("div", { style: { fontSize: 24, fontWeight: 700, marginTop: 4 } }, formatCurrency(calc.transfers.anders.pocket)),
-                            React.createElement("div", { className: "muted" }, "Lommepenge")),
-                        React.createElement(Stat, { label: "Anders samlet overf\u00F8rsel", value: formatCurrency(calc.transfers.anders.total), tone: "good", hint: `Kan aldrig overstige ${formatCurrency(calc.capacities.anders + calc.transfers.anders.pocket + calc.andersOutlays)}` }))),
-                React.createElement("div", { className: "card" },
-                    React.createElement("div", { className: "card-header" },
-                        React.createElement("h3", null, "Tina overf\u00F8rer")),
-                    React.createElement("div", { className: "card-body transfer-list" },
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "F\u00E6lleskonto til regninger", amount: calc.transfers.tina.regninger }),
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "F\u00E6lleskonto til opsparing afdragsfrihed", amount: calc.transfers.tina.afdragsfrihed }),
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "F\u00E6lleskonto til mad", amount: calc.transfers.tina.mad }),
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "Albert aktiesparekonto", amount: calc.transfers.tina.albertAsk }),
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "Emma aktiesparekonto", amount: calc.transfers.tina.emmaAsk }),
-                        React.createElement(TransferLine, { from: "Tinas l\u00F8nkonto", to: "F\u00E6lleskonto til opsparing til boligindretning", amount: calc.transfers.tina.bolig }),
-                        calc.transfers.bolig.budget > 0 ? React.createElement("div", { className: "info-box" },
-                            "Boligkontoen d\u00E6kker denne m\u00E5ned ",
-                            formatCurrency(calc.transfers.bolig.budget),
-                            " ind i det f\u00E6lles budget.",
-                            calc.transfers.bolig.regninger > 0 ? React.createElement("div", { style: { marginTop: 8 } },
-                                "\u2022 Til regninger: ",
-                                formatCurrency(calc.transfers.bolig.regninger)) : null,
-                            calc.transfers.bolig.afdragsfrihed > 0 ? React.createElement("div", null,
-                                "\u2022 Til afdragsfrihed: ",
-                                formatCurrency(calc.transfers.bolig.afdragsfrihed)) : null,
-                            calc.transfers.bolig.mad > 0 ? React.createElement("div", null,
-                                "\u2022 Til mad: ",
-                                formatCurrency(calc.transfers.bolig.mad)) : null,
-                            calc.transfers.bolig.albertAsk > 0 ? React.createElement("div", null,
-                                "\u2022 Til Albert ASK: ",
-                                formatCurrency(calc.transfers.bolig.albertAsk)) : null,
-                            calc.transfers.bolig.emmaAsk > 0 ? React.createElement("div", null,
-                                "\u2022 Til Emma ASK: ",
-                                formatCurrency(calc.transfers.bolig.emmaAsk)) : null) : null,
-                        React.createElement("div", { className: "mini-box" },
-                            React.createElement("div", { className: "muted" }, "Bliver st\u00E5ende p\u00E5 Tinas l\u00F8nkonto"),
-                            React.createElement("div", { style: { fontSize: 24, fontWeight: 700, marginTop: 4 } }, formatCurrency(calc.transfers.tina.pocket)),
-                            React.createElement("div", { className: "muted" }, "Lommepenge")),
-                        React.createElement(Stat, { label: "Tina samlet overf\u00F8rsel", value: formatCurrency(calc.transfers.tina.total), tone: "good", hint: `Kan aldrig overstige ${formatCurrency(calc.capacities.tina + calc.transfers.tina.pocket + calc.tinaOutlays)}` })))),
-            React.createElement("div", { className: "card", style: { marginTop: 20 } },
-                React.createElement("div", { className: "card-header" },
-                    React.createElement("h3", null, "Kontrolpanel")),
-                React.createElement("div", { className: "card-body" },
-                    React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 } },
-                        React.createElement(Stat, { label: "Tilbage p\u00E5 Anders' l\u00F8nkonto", value: formatCurrency(calc.postTransferLeft.anders) }),
-                        React.createElement(Stat, { label: "Tilbage p\u00E5 Tinas l\u00F8nkonto", value: formatCurrency(calc.postTransferLeft.tina) }),
-                        React.createElement(Stat, { label: "Forskel efter overf\u00F8rsler", value: formatCurrency(calc.imbalance), hint: "M\u00E5let er 0 kr.", tone: calc.imbalance === 0 ? 'good' : 'warn' }),
-                        React.createElement(Stat, { label: "Ikke finansieret rest", value: formatCurrency(calc.remainingShortageAfterBolig), hint: "B\u00F8r helst v\u00E6re 0 kr.", tone: calc.remainingShortageAfterBolig === 0 ? 'good' : 'bad' })),
-                    React.createElement("div", { className: "mini-box", style: { marginTop: 16 } },
-                        React.createElement("div", { style: { fontWeight: 600, marginBottom: 10 } }, "Regne-tjek"),
-                        React.createElement("div", { className: "checks" },
-                            React.createElement("div", { className: calc.controls.peopleTransferWithinCapacity ? "ok" : "bad" }, "\u2022 Overf\u00F8rsler holder sig inden for disponibelt bel\u00F8b"),
-                            React.createElement("div", { className: calc.controls.andersEndsWithPocket ? "ok" : "bad" }, "\u2022 Anders ender med pr\u00E6cis lommepenge"),
-                            React.createElement("div", { className: calc.controls.tinaEndsWithPocket ? "ok" : "bad" }, "\u2022 Tina ender med pr\u00E6cis lommepenge"),
-                            React.createElement("div", { className: calc.controls.andersLinesMatchTotal ? "ok" : "bad" }, "\u2022 Anders\u2019 linjer summer til totalen"),
-                            React.createElement("div", { className: calc.controls.tinaLinesMatchTotal ? "ok" : "bad" }, "\u2022 Tinas linjer summer til totalen"),
-                            React.createElement("div", { className: calc.controls.noNegativeTransfers ? "ok" : "bad" }, "\u2022 Ingen negative overf\u00F8rsler"),
-                            React.createElement("div", { className: calc.controls.regningerMatches ? "ok" : "bad" }, "\u2022 Regninger matcher behov"),
-                            React.createElement("div", { className: calc.controls.afdragsfrihedMatches ? "ok" : "bad" }, "\u2022 Afdragsfrihed matcher behov"),
-                            React.createElement("div", { className: calc.controls.madMatches ? "ok" : "bad" }, "\u2022 Mad matcher behov"),
-                            React.createElement("div", { className: calc.controls.albertAskMatches ? "ok" : "bad" }, "\u2022 Albert ASK matcher behov"),
-                            React.createElement("div", { className: calc.controls.emmaAskMatches ? "ok" : "bad" }, "\u2022 Emma ASK matcher behov")))))),
-        React.createElement("div", { className: `section ${tab === 'setup' ? 'active' : ''}` },
-            React.createElement("div", { className: "card" },
-                React.createElement("div", { className: "card-header" },
-                    React.createElement("h3", null, "Basis-konfiguration")),
-                React.createElement("div", { className: "card-body" },
-                    React.createElement("p", { className: "help", style: { marginTop: 0 } }, "Her ligger de faste standardbel\u00F8b, som normalt ikke \u00E6ndrer sig fra m\u00E5ned til m\u00E5ned. De bruges direkte i beregningen, men kan stadig justeres ved behov."),
-                    React.createElement("div", { className: "grid two" },
-                        React.createElement(NumberField, { label: "Fast bel\u00F8b til F\u00E6lleskonto til regninger", value: data.categories.regninger.target, onChange: (v) => setCategoryField('regninger', 'target', v), helper: "Standardbel\u00F8b til faste udgifter. Mastercard l\u00E6gges oveni m\u00E5ned for m\u00E5ned." }),
-                        React.createElement(NumberField, { label: "Opsparing til fremtidige afdrag", value: data.categories.afdragsfrihed.target, onChange: (v) => setCategoryField('afdragsfrihed', 'target', v), helper: "Bel\u00F8b til F\u00E6lleskonto til opsparing afdragsfrihed." }),
-                        React.createElement(NumberField, { label: "Mad og f\u00E6lles forbrug", value: data.categories.mad.target, onChange: (v) => setCategoryField('mad', 'target', v), helper: "Standardbel\u00F8b til f\u00E6lleskonto til mad. Eventuelt madovertr\u00E6k l\u00E6gges oveni." }),
-                        React.createElement(NumberField, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Albert." }),
-                        React.createElement(NumberField, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Emma." }),
-                        React.createElement(NumberField, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." }))))),
-        React.createElement("div", { className: `section ${tab === 'balances' ? 'active' : ''}` },
-            React.createElement("div", { className: "card" },
-                React.createElement("div", { className: "card-header" },
-                    React.createElement("h3", null, "Forventede saldi p\u00E5 konti efter m\u00E5nedens fordeling")),
-                React.createElement("div", { className: "card-body" },
-                    React.createElement("div", { className: "balance-grid" }, Object.entries(data.categories).map(([key, category]) => {
-                        const incoming = calc.categories[key]?.incoming || 0;
-                        const need = calc.categories[key]?.need || 0;
-                        const expected = calc.expectedBalances[key] || 0;
-                        return React.createElement("div", { key: key, className: "balance-card" },
-                            React.createElement("div", { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: 12 } },
-                                React.createElement("div", null,
-                                    React.createElement("div", { className: "muted", style: { fontSize: 14 } }, category.label),
-                                    React.createElement("div", { style: { fontSize: 28, fontWeight: 700, marginTop: 4 } }, formatCurrency(expected))),
-                                React.createElement("div", { style: { background: '#fff', padding: '8px 10px', borderRadius: 16, boxShadow: '0 1px 4px rgba(15,23,42,.06)' } }, "\uD83D\uDCB3")),
-                            React.createElement("div", { style: { marginTop: 14 } },
-                                React.createElement(NumberField, { label: "Startsaldo", value: category.startBalance, onChange: (v) => setCategoryField(key, 'startBalance', v) })),
-                            React.createElement("div", { className: "inline2", style: { marginTop: 10 } },
-                                React.createElement("div", { className: "funding-cell" },
-                                    React.createElement("div", { className: "muted" }, "Tilf\u00F8rsel"),
-                                    React.createElement("div", { style: { fontWeight: 600, marginTop: 4 } }, formatCurrency(incoming))),
-                                React.createElement("div", { className: "funding-cell" },
-                                    React.createElement("div", { className: "muted" }, "Behov"),
-                                    React.createElement("div", { style: { fontWeight: 600, marginTop: 4 } }, formatCurrency(need)))),
-                            key === "regninger" ? React.createElement("div", { className: "mini", style: { marginTop: 8 } },
-                                "Inkl. Mastercard p\u00E5 ",
-                                formatCurrency(calc.mastercardAmount)) : null,
-                            key === "bolig" && calc.boligBufferUsed > 0 ? React.createElement("div", { className: "mini", style: { marginTop: 8, color: '#b45309' } },
-                                "Denne m\u00E5ned er der ogs\u00E5 trukket ",
-                                formatCurrency(calc.boligBufferUsed),
-                                " fra startsaldoen som buffer.") : null);
-                    }))))),
-        React.createElement("div", { className: `section ${tab === 'dashboard' ? 'active' : ''}` },
-            React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 } },
-                React.createElement(Stat, { label: "M\u00E5nedens samlede indkomst", value: formatCurrency(calc.totalIncome), hint: trend("totalIncome") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("totalIncome"))}` : "Gem flere måneder for trend", tone: "dark" }),
-                React.createElement(Stat, { label: "Mastercard denne m\u00E5ned", value: formatCurrency(calc.mastercardAmount), hint: trend("mastercard") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("mastercard"))}` : "Gem flere måneder for trend" }),
-                React.createElement(Stat, { label: "Til/fra boligindretning", value: formatCurrency(calc.actualBoligContribution), hint: trend("boligAmount") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("boligAmount"))}` : "Gem flere måneder for trend", tone: "good" }),
-                React.createElement(Stat, { label: "Registrerede f\u00E6lles udl\u00E6g", value: formatCurrency(calc.totalOutlays), hint: trend("outlays") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("outlays"))}` : "Gem flere måneder for trend", tone: calc.totalOutlays > 0 ? "warn" : "soft" })),
-            React.createElement("div", { className: "card", style: { marginTop: 20 } },
-                React.createElement("div", { className: "card-header" },
-                    React.createElement("h3", null, "Gemte m\u00E5neder")),
-                React.createElement("div", { className: "card-body" },
-                    React.createElement("div", { className: "btnrow", style: { marginBottom: 16 } },
-                        React.createElement("button", { onClick: exportHistoryCsv }, "Eksport\u00E9r historik til CSV / Excel")),
-                    React.createElement("div", { className: "grid", style: { gap: 12 } }, [...history].map((row) => React.createElement("div", { key: row.monthLabel, className: "history-item" },
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "M\u00E5ned"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, row.monthLabel)),
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "Indkomst"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, formatCurrency(row.totalIncome))),
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "Mastercard"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, formatCurrency(row.mastercard))),
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "Madovertr\u00E6k"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, formatCurrency(row.foodOverdraft))),
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "Udl\u00E6g"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, formatCurrency(row.outlays))),
-                        React.createElement("div", null,
-                            React.createElement("div", { className: "mini" }, "Til/fra boligindretning"),
-                            React.createElement("div", { style: { fontWeight: 600 } }, formatCurrency(row.boligAmount))),
-                        React.createElement("div", { style: { justifySelf: 'end' } },
-                            React.createElement("button", { title: `Slet ${row.monthLabel}`, "aria-label": `Slet ${row.monthLabel}`, onClick: () => deleteSavedMonth(row.monthLabel), style: { width: 42, height: 42, padding: 0, borderRadius: 14 } }, "\uD83D\uDDD1\uFE0F")))))))));
+    /* ---------- derived UI state ---------- */
+    const step1Done = !!data.monthLabel && parse(data.people.anders.income) > 0 && parse(data.people.tina.income) > 0;
+    const step2Done = parse(data.categories.regninger.target) > 0 && parse(data.categories.mad.target) > 0;
+    const step3Done = !!data.outlaysConfirmed || calc.totalOutlays > 0;
+    const doneCount = (step1Done ? 1 : 0) + (step2Done ? 1 : 0) + (step3Done ? 1 : 0);
+    const allChecks = Object.values(calc.controls);
+    const checksPassed = allChecks.filter(Boolean).length;
+    const allOk = checksPassed === allChecks.length;
+    const ready = step1Done && step2Done && allOk;
+    const goto = (s) => { setScreen(s); setDrawer(false); window.scrollTo(0, 0); };
+    const openQuick = () => { setQPerson('anders'); setQText(''); setQAmount(''); setSheet(true); setDrawer(false); };
+    const saveQuick = () => {
+        if (!qAmount) {
+            setSheet(false);
+            return;
+        }
+        setData(prev => {
+            const lines = prev.people[qPerson].outlayLines;
+            const firstEmpty = lines.length === 1 && !lines[0].text && !lines[0].amount;
+            const nextLines = firstEmpty
+                ? [{ ...lines[0], text: qText, amount: qAmount }]
+                : [...lines, { id: `${qPerson}-${Date.now()}-${Math.random()}`, text: qText, amount: qAmount }];
+            return { ...prev, people: { ...prev.people, [qPerson]: { ...prev.people[qPerson], outlayLines: nextLines } } };
+        });
+        setSheet(false);
+    };
+    /* allocation bar segments (truthful split of total income) */
+    const segs = [
+        { key: 'regninger', label: 'Regninger', color: '#14243D', amt: calc.transfers.anders.regninger + calc.transfers.tina.regninger },
+        { key: 'afdragsfrihed', label: 'Afdragsfrihed', color: '#2B3E5C', amt: calc.transfers.anders.afdragsfrihed + calc.transfers.tina.afdragsfrihed },
+        { key: 'mad', label: 'Mad', color: '#4A6076', amt: calc.transfers.anders.mad + calc.transfers.tina.mad },
+        { key: 'ask', label: 'Børneopsparing', color: '#B96A34', amt: calc.transfers.anders.albertAsk + calc.transfers.tina.albertAsk + calc.transfers.anders.emmaAsk + calc.transfers.tina.emmaAsk },
+        { key: 'bolig', label: 'Boligopsparing', color: '#2E7D6B', amt: calc.actualBoligContribution },
+        { key: 'pocket', label: 'Lommepenge', color: '#D79A6B', amt: calc.pocketEach * 2 },
+        { key: 'outlays', label: 'Udlæg (beholdes)', color: '#9BB0C6', amt: calc.totalOutlays },
+    ].filter(s => s.amt > 0);
+    const segTotal = segs.reduce((a, b) => a + b.amt, 0);
+    const missing = [];
+    if (!data.monthLabel)
+        missing.push('måned');
+    if (parse(data.people.anders.income) <= 0)
+        missing.push("Anders' indkomst");
+    if (parse(data.people.tina.income) <= 0)
+        missing.push('Tinas indkomst');
+    if (parse(data.categories.regninger.target) <= 0)
+        missing.push('regninger');
+    if (parse(data.categories.mad.target) <= 0)
+        missing.push('mad');
+    const NAV = [
+        ['home', 'Overblik', 'home'],
+        ['input', 'Indtastning', 'input'],
+        ['transfers', 'Overførsler', 'swap'],
+        ['balances', 'Konti', 'card'],
+        ['dashboard', 'Dashboard', 'chart'],
+        ['setup', 'Opsætning', 'gear'],
+    ];
+    const screenTitle = { home: 'Overblik', input: 'Indtastning', transfers: 'Overførsler', balances: 'Konti', dashboard: 'Dashboard', setup: 'Opsætning' }[screen];
+    /* ---------- render ---------- */
+    return React.createElement("div", { className: "bb-app" },
+        React.createElement("header", { className: "bb-appbar" },
+            React.createElement("button", { className: "bb-burger", "aria-label": "Menu", onClick: () => setDrawer(true) },
+                React.createElement("span", null),
+                React.createElement("span", null),
+                React.createElement("span", null)),
+            React.createElement("div", { className: "bb-wordmark" },
+                "BudgetBuddy",
+                React.createElement("span", { className: "bb-dot" }, ".")),
+            React.createElement("button", { className: "bb-monthpill", onClick: () => setMonthSheet(true) },
+                data.monthLabel || 'Vælg måned',
+                " ",
+                React.createElement("span", { className: "bb-chev" },
+                    React.createElement(Icon, { name: "chev" })))),
+        drawer ? React.createElement("div", { className: "bb-scrim", onClick: () => setDrawer(false) }) : null,
+        React.createElement("nav", { className: `bb-drawer ${drawer ? 'open' : ''}`, "aria-hidden": !drawer },
+            React.createElement("div", { className: "bb-brand" },
+                React.createElement("div", { className: "bb-wm" },
+                    "BudgetBuddy",
+                    React.createElement("span", { className: "bb-dot" }, ".")),
+                React.createElement("div", { className: "bb-sub" },
+                    "Familien \u00B7 ",
+                    data.monthLabel || 'ingen måned valgt')),
+            NAV.map(([k, label, ic]) => React.createElement("button", { key: k, className: `bb-navitem ${screen === k ? 'active' : ''}`, onClick: () => goto(k) },
+                React.createElement("span", { className: "bb-ic" },
+                    React.createElement(Icon, { name: ic })),
+                label,
+                k === 'input' ? React.createElement("span", { className: "bb-navprog" },
+                    React.createElement("span", { className: "bb-npt" },
+                        doneCount,
+                        " af 3"),
+                    React.createElement("span", { className: "bb-track" },
+                        React.createElement("i", { style: { width: `${Math.round(doneCount / 3 * 100)}%` } }))) : null)),
+            React.createElement("button", { className: "bb-quickitem", onClick: openQuick },
+                React.createElement("span", { className: "bb-qp" },
+                    React.createElement(Icon, { name: "plus" })),
+                " Nyt udl\u00E6g",
+                React.createElement("span", { className: "bb-qsek" }, "10 SEK.")),
+            React.createElement("div", { className: "bb-navfoot" }, "Alt gemmes automatisk p\u00E5 din enhed")),
+        React.createElement("main", { className: "bb-main" },
+            screen === 'home' ? React.createElement("div", { className: "bb-screen" },
+                ready
+                    ? React.createElement("div", { className: "bb-chip ok" },
+                        React.createElement("span", { className: "bb-tick" },
+                            React.createElement(Icon, { name: "check" })),
+                        " Klar til fordeling")
+                    : React.createElement("div", { className: "bb-chip warn" },
+                        React.createElement("span", { className: "bb-tick w" }, "!"),
+                        " Mangler: ",
+                        missing.length ? missing.slice(0, 2).join(', ') + (missing.length > 2 ? ' …' : '') : 'kontroltjek'),
+                React.createElement("div", { className: "bb-headline" },
+                    React.createElement("span", { className: "bb-hl" },
+                        "Til fordeling i ",
+                        selectedMonth ? selectedMonth.toLowerCase() : 'måneden'),
+                    React.createElement("span", { className: "bb-amt" },
+                        new Intl.NumberFormat('da-DK').format(calc.totalIncome),
+                        React.createElement("span", { className: "bb-kr" }, "kr"))),
+                React.createElement("div", { className: "bb-card" },
+                    React.createElement("div", { className: "bb-cap" },
+                        React.createElement("b", null, "S\u00E5dan fordeles m\u00E5neden"),
+                        React.createElement("span", null,
+                            segs.length,
+                            " poster")),
+                    segTotal > 0 ? React.createElement(React.Fragment, null,
+                        React.createElement("div", { className: "bb-flowbar" }, segs.map(s => React.createElement("i", { key: s.key, style: { width: `${(s.amt / segTotal * 100)}%`, background: s.color } }))),
+                        React.createElement("div", { className: "bb-legend" }, segs.map(s => React.createElement("div", { key: s.key, className: "bb-lrow" },
+                            React.createElement("span", { className: "bb-sw", style: { background: s.color } }),
+                            React.createElement("span", { className: "bb-lnm" }, s.label),
+                            React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(s.amt)))))) : React.createElement("div", { className: "bb-empty" }, "Indtast m\u00E5nedens indkomst og behov, s\u00E5 tegnes fordelingen her.")),
+                React.createElement("button", { className: "bb-cta", onClick: () => goto('transfers') },
+                    "Se fordelingsplan ",
+                    React.createElement("span", null, "\u2192")),
+                React.createElement("div", { className: "bb-ctarow" },
+                    React.createElement("button", { className: "bb-ghost", onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem måned i historik'),
+                    React.createElement("button", { className: "bb-ghost danger", onClick: resetDefaults }, "Nulstil")),
+                React.createElement("p", { className: "bb-note" }, "Alle indtastninger gemmes automatisk p\u00E5 denne enhed \u2013 du kan trygt lukke appen og forts\u00E6tte senere.")) : null,
+            screen === 'input' ? React.createElement("div", { className: "bb-screen" },
+                React.createElement("div", { className: "bb-stepper" }, [['Indkomst', step1Done], ['Behov', step2Done], ['Udlæg', step3Done]].map(([lbl, done], i) => {
+                    const n = i + 1;
+                    return React.createElement(React.Fragment, { key: lbl },
+                        i > 0 ? React.createElement("span", { className: `bb-sline ${(i === 1 && step1Done) || (i === 2 && step2Done) ? 'fill' : ''}` }) : null,
+                        React.createElement("button", { className: `bb-step ${step === n ? 'on' : ''} ${done ? 'done' : ''}`, onClick: () => setStep(n) },
+                            React.createElement("span", { className: "bb-snum" }, done ? React.createElement(Icon, { name: "check" }) : n),
+                            React.createElement("span", { className: "bb-stx" }, lbl)));
+                })),
+                React.createElement("div", { className: "bb-eyebrow" },
+                    "Trin ",
+                    step,
+                    " af 3 \u00B7 ",
+                    doneCount,
+                    " fuldf\u00F8rt"),
+                step === 1 ? React.createElement(React.Fragment, null,
+                    React.createElement("h2", { className: "bb-h2" }, "M\u00E5nedens indkomst"),
+                    React.createElement("div", { className: "bb-card pad" },
+                        React.createElement("div", { className: "bb-inline2" },
+                            React.createElement("div", { className: "bb-field" },
+                                React.createElement("label", null, "M\u00E5ned"),
+                                React.createElement("select", { value: selectedMonth, onChange: e => updateMonthYear(e.target.value, selectedYear) },
+                                    React.createElement("option", { value: "" }, "V\u00E6lg m\u00E5ned"),
+                                    monthNames.map((m) => React.createElement("option", { key: m, value: m }, m)))),
+                            React.createElement("div", { className: "bb-field" },
+                                React.createElement("label", null, "\u00C5r"),
+                                React.createElement("select", { value: selectedYear, onChange: e => updateMonthYear(selectedMonth, e.target.value) }, yearOptions.map((y) => React.createElement("option", { key: y, value: y }, y))))),
+                        React.createElement(Field, { label: "Anders' indkomst", value: data.people.anders.income, onChange: (v) => setPersonField('anders', 'income', v) }),
+                        React.createElement(Field, { label: "Tinas indkomst", value: data.people.tina.income, onChange: (v) => setPersonField('tina', 'income', v) }),
+                        React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Disse penge bliver st\u00E5ende p\u00E5 hver persons l\u00F8nkonto." }),
+                        React.createElement("div", { className: "bb-subtot" },
+                            React.createElement("span", null, "Samlet indkomst"),
+                            React.createElement("b", null, formatCurrency(calc.totalIncome)))),
+                    React.createElement("button", { className: "bb-cta", onClick: () => setStep(2) },
+                        "N\u00E6ste: Faste behov ",
+                        React.createElement("span", null, "\u2192"))) : null,
+                step === 2 ? React.createElement(React.Fragment, null,
+                    React.createElement("h2", { className: "bb-h2" }, "Faste behov"),
+                    React.createElement("div", { className: "bb-card pad" },
+                        React.createElement(Field, { label: "F\u00E6lleskonto til regninger (uden Mastercard)", value: data.categories.regninger.target, onChange: (v) => setCategoryField('regninger', 'target', v) }),
+                        React.createElement(Field, { label: "M\u00E5nedens Mastercard-regning", value: data.mastercardAmount, onChange: (v) => setData(prev => ({ ...prev, mastercardAmount: v })), helper: "L\u00E6gges oveni regningskontoens behov og betales derfra." }),
+                        React.createElement(Field, { label: "F\u00E6lleskonto til opsparing afdragsfrihed", value: data.categories.afdragsfrihed.target, onChange: (v) => setCategoryField('afdragsfrihed', 'target', v) }),
+                        React.createElement(Field, { label: "F\u00E6lleskonto til mad", value: data.categories.mad.target, onChange: (v) => setCategoryField('mad', 'target', v) }),
+                        React.createElement(Field, { label: "Overtr\u00E6k p\u00E5 madkonto som skal d\u00E6kkes", value: data.foodOverdraft, onChange: (v) => setData(prev => ({ ...prev, foodOverdraft: v })) }),
+                        React.createElement(Field, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v) }),
+                        React.createElement(Field, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v) }),
+                        React.createElement("div", { className: "bb-subtot" },
+                            React.createElement("span", null, "Faste behov i alt"),
+                            React.createElement("b", null, formatCurrency(calc.regningerNeed + calc.afdragsfrihed + calc.madNeed + calc.childrenSavings)))),
+                    React.createElement("button", { className: "bb-cta", onClick: () => setStep(3) },
+                        "N\u00E6ste: Udl\u00E6g ",
+                        React.createElement("span", null, "\u2192"))) : null,
+                step === 3 ? React.createElement(React.Fragment, null,
+                    React.createElement("h2", { className: "bb-h2" }, "Udl\u00E6g"),
+                    ['anders', 'tina'].map(pk => React.createElement("div", { key: pk, className: "bb-card pad" },
+                        React.createElement("div", { className: "bb-cap" },
+                            React.createElement("b", null,
+                                data.people[pk].name,
+                                pk === 'anders' ? "'" : "s",
+                                " udl\u00E6g"),
+                            React.createElement("button", { className: "bb-mini", onClick: () => addOutlayLine(pk) }, "+ Tilf\u00F8j linje")),
+                        React.createElement("div", { className: "bb-osub" }, "F\u00E6lles k\u00F8b betalt privat, som skal modregnes denne m\u00E5ned"),
+                        data.people[pk].outlayLines.map((line, index) => React.createElement("div", { key: line.id, className: "bb-orow" },
+                            React.createElement("input", { placeholder: `Udlæg ${index + 1} – fx apotek, gave`, value: line.text, onChange: e => updateOutlayLine(pk, line.id, 'text', e.target.value) }),
+                            React.createElement("input", { type: "number", inputMode: "decimal", placeholder: "Bel\u00F8b", value: line.amount, onChange: e => updateOutlayLine(pk, line.id, 'amount', e.target.value) }),
+                            React.createElement("button", { "aria-label": "Slet linje", onClick: () => removeOutlayLine(pk, line.id), disabled: data.people[pk].outlayLines.length === 1 },
+                                React.createElement(Icon, { name: "x" })))),
+                        React.createElement("div", { className: "bb-subtot" },
+                            React.createElement("span", null, "Samlet udl\u00E6g"),
+                            React.createElement("b", null, formatCurrency(pk === 'anders' ? calc.andersOutlays : calc.tinaOutlays))))),
+                    React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); goto('transfers'); } },
+                        "F\u00E6rdig \u2014 se fordelingsplan ",
+                        React.createElement("span", null, "\u2192"))) : null) : null,
+            screen === 'transfers' ? React.createElement("div", { className: "bb-screen" },
+                React.createElement("div", { className: "bb-eyebrow" }, "Fordelingsplan"),
+                React.createElement("h2", { className: "bb-h2" }, "S\u00E5dan flytter I pengene"),
+                ['anders', 'tina'].map(pk => {
+                    const t = calc.transfers[pk];
+                    const name = data.people[pk].name;
+                    const cap = calc.capacities[pk] + t.pocket + (pk === 'anders' ? calc.andersOutlays : calc.tinaOutlays);
+                    return React.createElement("div", { key: pk, className: "bb-tgroup" },
+                        React.createElement("div", { className: "bb-ghead" },
+                            React.createElement("span", { className: "bb-gdot", style: { background: pk === 'anders' ? '#14243D' : '#B96A34' } }),
+                            name,
+                            " overf\u00F8rer \u00B7 i alt ",
+                            formatCurrency(t.total)),
+                        [
+                            ['Fælleskonto til regninger', t.regninger],
+                            ['Fælleskonto til opsparing afdragsfrihed', t.afdragsfrihed],
+                            ['Fælleskonto til mad', t.mad],
+                            ['Albert aktiesparekonto', t.albertAsk],
+                            ['Emma aktiesparekonto', t.emmaAsk],
+                            ['Fælleskonto til opsparing til boligindretning', t.bolig],
+                        ].map(([to, amt]) => React.createElement("div", { key: to, className: "bb-trow" },
+                            React.createElement("div", { className: "bb-tinfo" },
+                                React.createElement("div", { className: "bb-tnm" }, to),
+                                React.createElement("div", { className: "bb-tsub" },
+                                    "fra ",
+                                    name,
+                                    pk === 'anders' ? "'" : "s",
+                                    " l\u00F8nkonto")),
+                            React.createElement("span", { className: "bb-tamt" }, new Intl.NumberFormat('da-DK').format(amt)),
+                            React.createElement("button", { className: "bb-cp", "aria-label": `Kopiér ${amt}`, onClick: async () => { try {
+                                    await navigator.clipboard.writeText(String(amt));
+                                }
+                                catch { } } },
+                                React.createElement(Icon, { name: "copy" })))),
+                        React.createElement("div", { className: "bb-pocketbox" },
+                            "Bliver st\u00E5ende som lommepenge: ",
+                            React.createElement("b", null, formatCurrency(t.pocket)),
+                            React.createElement("span", { className: "bb-caphint" },
+                                "Samlet overf\u00F8rsel kan aldrig overstige ",
+                                formatCurrency(cap))));
+                }),
+                calc.transfers.bolig.budget > 0 ? React.createElement("div", { className: "bb-infobox" },
+                    "Boligkontoen d\u00E6kker denne m\u00E5ned ",
+                    formatCurrency(calc.transfers.bolig.budget),
+                    " ind i det f\u00E6lles budget.",
+                    calc.transfers.bolig.regninger > 0 ? React.createElement("div", null,
+                        "\u2022 Til regninger: ",
+                        formatCurrency(calc.transfers.bolig.regninger)) : null,
+                    calc.transfers.bolig.afdragsfrihed > 0 ? React.createElement("div", null,
+                        "\u2022 Til afdragsfrihed: ",
+                        formatCurrency(calc.transfers.bolig.afdragsfrihed)) : null,
+                    calc.transfers.bolig.mad > 0 ? React.createElement("div", null,
+                        "\u2022 Til mad: ",
+                        formatCurrency(calc.transfers.bolig.mad)) : null,
+                    calc.transfers.bolig.albertAsk > 0 ? React.createElement("div", null,
+                        "\u2022 Til Albert ASK: ",
+                        formatCurrency(calc.transfers.bolig.albertAsk)) : null,
+                    calc.transfers.bolig.emmaAsk > 0 ? React.createElement("div", null,
+                        "\u2022 Til Emma ASK: ",
+                        formatCurrency(calc.transfers.bolig.emmaAsk)) : null) : null,
+                React.createElement("button", { className: `bb-checkbanner ${allOk ? '' : 'warn'}`, onClick: () => setChecksOpen(o => !o) },
+                    React.createElement("span", { className: "bb-cbic" }, allOk ? React.createElement(Icon, { name: "check" }) : '!'),
+                    React.createElement("span", { className: "bb-cbt" },
+                        React.createElement("b", null, allOk ? 'Regnestykket går op' : 'Regnestykket går ikke op endnu'),
+                        React.createElement("span", null,
+                            checksPassed,
+                            " af ",
+                            allChecks.length,
+                            " kontroltjek best\u00E5et \u00B7 tryk for detaljer")),
+                    React.createElement("span", { className: `bb-cbchev ${checksOpen ? 'open' : ''}` },
+                        React.createElement(Icon, { name: "chev" }))),
+                checksOpen ? React.createElement("div", { className: "bb-card pad bb-checks" },
+                    React.createElement("div", { className: "bb-inline2" },
+                        React.createElement("div", { className: "bb-kv" },
+                            React.createElement("span", null, "Tilbage p\u00E5 Anders' l\u00F8nkonto"),
+                            React.createElement("b", null, formatCurrency(calc.postTransferLeft.anders))),
+                        React.createElement("div", { className: "bb-kv" },
+                            React.createElement("span", null, "Tilbage p\u00E5 Tinas l\u00F8nkonto"),
+                            React.createElement("b", null, formatCurrency(calc.postTransferLeft.tina))),
+                        React.createElement("div", { className: "bb-kv" },
+                            React.createElement("span", null, "Forskel efter overf\u00F8rsler"),
+                            React.createElement("b", { className: calc.imbalance === 0 ? 'ok' : 'warn' }, formatCurrency(calc.imbalance))),
+                        React.createElement("div", { className: "bb-kv" },
+                            React.createElement("span", null, "Ikke finansieret rest"),
+                            React.createElement("b", { className: calc.remainingShortageAfterBolig === 0 ? 'ok' : 'warn' }, formatCurrency(calc.remainingShortageAfterBolig)))),
+                    [
+                        ['Overførsler holder sig inden for disponibelt beløb', calc.controls.peopleTransferWithinCapacity],
+                        ['Anders ender med præcis lommepenge', calc.controls.andersEndsWithPocket],
+                        ['Tina ender med præcis lommepenge', calc.controls.tinaEndsWithPocket],
+                        ["Anders' linjer summer til totalen", calc.controls.andersLinesMatchTotal],
+                        ['Tinas linjer summer til totalen', calc.controls.tinaLinesMatchTotal],
+                        ['Ingen negative overførsler', calc.controls.noNegativeTransfers],
+                        ['Regninger matcher behov', calc.controls.regningerMatches],
+                        ['Afdragsfrihed matcher behov', calc.controls.afdragsfrihedMatches],
+                        ['Mad matcher behov', calc.controls.madMatches],
+                        ['Albert ASK matcher behov', calc.controls.albertAskMatches],
+                        ['Emma ASK matcher behov', calc.controls.emmaAskMatches],
+                    ].map(([lbl, ok]) => React.createElement("div", { key: lbl, className: `bb-checkrow ${ok ? 'ok' : 'bad'}` },
+                        ok ? '✓' : '✗',
+                        " ",
+                        lbl))) : null,
+                React.createElement("div", { className: "bb-sharegrid" },
+                    React.createElement("button", { className: "bb-ghost", onClick: exportSummary }, copied ? 'Kopieret ✓' : 'Kopiér samlet plan'),
+                    React.createElement("button", { className: "bb-ghost", onClick: () => copySimpleTransferText('anders') }, "Kopi\u00E9r Anders"),
+                    React.createElement("button", { className: "bb-ghost", onClick: () => copySimpleTransferText('tina') }, "Kopi\u00E9r Tina"),
+                    React.createElement("button", { className: "bb-cta compact", onClick: openSmsPlan },
+                        "Send som SMS ",
+                        React.createElement("span", null, "\u2192"))),
+                React.createElement("p", { className: "bb-note" }, "SMS/iMessage \u00E5bnes med teksten udfyldt \u2014 du v\u00E6lger selv modtager og trykker send.")) : null,
+            screen === 'balances' ? React.createElement("div", { className: "bb-screen" },
+                React.createElement("div", { className: "bb-eyebrow" }, "Konti"),
+                React.createElement("h2", { className: "bb-h2" }, "Forventede saldi efter fordeling"),
+                React.createElement("div", { className: "bb-balgrid" }, Object.entries(data.categories).map(([key, category]) => {
+                    const incoming = calc.categories[key]?.incoming || 0;
+                    const need = calc.categories[key]?.need || 0;
+                    const expected = calc.expectedBalances[key] || 0;
+                    return React.createElement("div", { key: key, className: "bb-card pad" },
+                        React.createElement("div", { className: "bb-balhead" },
+                            React.createElement("div", null,
+                                React.createElement("div", { className: "bb-ballbl" }, category.label),
+                                React.createElement("div", { className: `bb-balamt ${expected < 0 ? 'neg' : ''}` }, formatCurrency(expected))),
+                            React.createElement("span", { className: "bb-balic" },
+                                React.createElement(Icon, { name: "card" }))),
+                        React.createElement(Field, { label: "Startsaldo", value: category.startBalance, onChange: (v) => setCategoryField(key, 'startBalance', v) }),
+                        React.createElement("div", { className: "bb-inline2" },
+                            React.createElement("div", { className: "bb-kv" },
+                                React.createElement("span", null, "Tilf\u00F8rsel"),
+                                React.createElement("b", null, formatCurrency(incoming))),
+                            React.createElement("div", { className: "bb-kv" },
+                                React.createElement("span", null, "Behov"),
+                                React.createElement("b", null, formatCurrency(need)))),
+                        key === "regninger" ? React.createElement("div", { className: "bb-fine" },
+                            "Inkl. Mastercard p\u00E5 ",
+                            formatCurrency(calc.mastercardAmount)) : null,
+                        key === "bolig" && calc.boligBufferUsed > 0 ? React.createElement("div", { className: "bb-fine warn" },
+                            "Denne m\u00E5ned er der ogs\u00E5 trukket ",
+                            formatCurrency(calc.boligBufferUsed),
+                            " fra startsaldoen som buffer.") : null);
+                }))) : null,
+            screen === 'dashboard' ? React.createElement("div", { className: "bb-screen" },
+                React.createElement("div", { className: "bb-eyebrow" }, "Dashboard"),
+                React.createElement("h2", { className: "bb-h2" }, "M\u00E5nedens tal"),
+                React.createElement("div", { className: "bb-statgrid" }, [
+                    ['Månedens samlede indkomst', calc.totalIncome, 'totalIncome', 'dark'],
+                    ['Mastercard denne måned', calc.mastercardAmount, 'mastercard', ''],
+                    ['Til/fra boligindretning', calc.actualBoligContribution, 'boligAmount', 'good'],
+                    ['Registrerede fælles udlæg', calc.totalOutlays, 'outlays', calc.totalOutlays > 0 ? 'warnv' : ''],
+                ].map(([lbl, val, key, tone]) => {
+                    const tr = trend(key);
+                    const str = new Intl.NumberFormat('da-DK').format(val);
+                    const size = str.length >= 10 ? 'xs' : (str.length >= 7 ? 'sm' : '');
+                    return React.createElement("div", { key: lbl, className: `bb-card pad bb-stat ${tone}` },
+                        React.createElement("div", { className: "bb-sk" }, lbl),
+                        React.createElement("div", { className: `bb-sv ${size}` }, formatCurrency(val)),
+                        React.createElement("div", { className: "bb-sh" }, tr !== null ? `vs. forrige gemte måned: ${formatCurrency(tr)}` : 'Gem flere måneder for trend'));
+                })),
+                React.createElement("div", { className: "bb-card pad" },
+                    React.createElement("div", { className: "bb-cap" },
+                        React.createElement("b", null, "Gemte m\u00E5neder"),
+                        React.createElement("button", { className: "bb-mini", onClick: exportHistoryCsv }, "Eksport\u00E9r CSV")),
+                    [...history].map((row) => React.createElement("div", { key: row.monthLabel, className: "bb-hrow" },
+                        React.createElement("div", { className: "bb-hmain" },
+                            React.createElement("div", { className: "bb-hmonth" }, row.monthLabel),
+                            React.createElement("div", { className: "bb-hdet" },
+                                "Indkomst ",
+                                formatCurrency(row.totalIncome),
+                                " \u00B7 MC ",
+                                formatCurrency(row.mastercard),
+                                " \u00B7 Udl\u00E6g ",
+                                formatCurrency(row.outlays)),
+                            React.createElement("div", { className: "bb-hdet" },
+                                "Madovertr\u00E6k ",
+                                formatCurrency(row.foodOverdraft),
+                                " \u00B7 Bolig ",
+                                formatCurrency(row.boligAmount))),
+                        React.createElement("button", { className: "bb-cp", title: `Slet ${row.monthLabel}`, "aria-label": `Slet ${row.monthLabel}`, onClick: () => deleteSavedMonth(row.monthLabel) },
+                            React.createElement(Icon, { name: "trash" })))),
+                    history.length === 0 ? React.createElement("div", { className: "bb-empty" }, "Ingen gemte m\u00E5neder endnu. Brug \u201CGem m\u00E5ned i historik\u201D p\u00E5 Overblik.") : null)) : null,
+            screen === 'setup' ? React.createElement("div", { className: "bb-screen" },
+                React.createElement("div", { className: "bb-eyebrow" }, "Ops\u00E6tning"),
+                React.createElement("h2", { className: "bb-h2" }, "Basis-konfiguration"),
+                React.createElement("p", { className: "bb-note top" }, "Faste standardbel\u00F8b, som normalt ikke \u00E6ndrer sig fra m\u00E5ned til m\u00E5ned. De bruges direkte i beregningen, men kan justeres ved behov."),
+                React.createElement("div", { className: "bb-card pad" },
+                    React.createElement(Field, { label: "Fast bel\u00F8b til F\u00E6lleskonto til regninger", value: data.categories.regninger.target, onChange: (v) => setCategoryField('regninger', 'target', v), helper: "Standardbel\u00F8b til faste udgifter. Mastercard l\u00E6gges oveni m\u00E5ned for m\u00E5ned." }),
+                    React.createElement(Field, { label: "Opsparing til fremtidige afdrag", value: data.categories.afdragsfrihed.target, onChange: (v) => setCategoryField('afdragsfrihed', 'target', v), helper: "Bel\u00F8b til F\u00E6lleskonto til opsparing afdragsfrihed." }),
+                    React.createElement(Field, { label: "Mad og f\u00E6lles forbrug", value: data.categories.mad.target, onChange: (v) => setCategoryField('mad', 'target', v), helper: "Standardbel\u00F8b til f\u00E6lleskonto til mad. Eventuelt madovertr\u00E6k l\u00E6gges oveni." }),
+                    React.createElement(Field, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Albert." }),
+                    React.createElement(Field, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Emma." }),
+                    React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." }))) : null),
+        !sheet && !drawer ? React.createElement("button", { className: "bb-peek", "aria-label": "Nyt udl\u00E6g", onClick: openQuick },
+            React.createElement("span", { className: "bb-peekplus" },
+                React.createElement(Icon, { name: "plus" })),
+            React.createElement("span", { className: "bb-peektxt" }, "Udl\u00E6g")) : null,
+        sheet ? React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "bb-scrim", onClick: () => setSheet(false) }),
+            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Nyt udl\u00E6g" },
+                React.createElement("div", { className: "bb-sheethandle" }),
+                React.createElement("h3", { className: "bb-h3" }, "Nyt udl\u00E6g"),
+                React.createElement("div", { className: "bb-ptoggle" }, ['anders', 'tina'].map(pk => React.createElement("button", { key: pk, className: qPerson === pk ? 'on' : '', onClick: () => setQPerson(pk) }, data.people[pk].name))),
+                React.createElement("div", { className: "bb-field" },
+                    React.createElement("label", null, "Hvad er der k\u00F8bt?"),
+                    React.createElement("input", { placeholder: "fx apotek, b\u00F8rnet\u00F8j, gave", value: qText, onChange: e => setQText(e.target.value) })),
+                React.createElement("div", { className: "bb-field" },
+                    React.createElement("label", null, "Bel\u00F8b"),
+                    React.createElement("input", { type: "number", inputMode: "decimal", placeholder: "0", value: qAmount, onChange: e => setQAmount(e.target.value) })),
+                React.createElement("button", { className: "bb-cta", onClick: saveQuick }, "Gem udl\u00E6g"),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => setSheet(false) }, "Annull\u00E9r"))) : null,
+        monthSheet ? React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "bb-scrim", onClick: () => setMonthSheet(false) }),
+            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "V\u00E6lg m\u00E5ned" },
+                React.createElement("div", { className: "bb-sheethandle" }),
+                React.createElement("h3", { className: "bb-h3" }, "V\u00E6lg m\u00E5ned"),
+                React.createElement("div", { className: "bb-inline2" },
+                    React.createElement("div", { className: "bb-field" },
+                        React.createElement("label", null, "M\u00E5ned"),
+                        React.createElement("select", { value: selectedMonth, onChange: e => updateMonthYear(e.target.value, selectedYear) },
+                            React.createElement("option", { value: "" }, "V\u00E6lg m\u00E5ned"),
+                            monthNames.map((m) => React.createElement("option", { key: m, value: m }, m)))),
+                    React.createElement("div", { className: "bb-field" },
+                        React.createElement("label", null, "\u00C5r"),
+                        React.createElement("select", { value: selectedYear, onChange: e => updateMonthYear(selectedMonth, e.target.value) }, yearOptions.map((y) => React.createElement("option", { key: y, value: y }, y))))),
+                React.createElement("button", { className: "bb-cta", onClick: () => setMonthSheet(false) }, "F\u00E6rdig"))) : null);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 

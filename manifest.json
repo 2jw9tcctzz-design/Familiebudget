@@ -1,13 +1,13 @@
 {
-  "name": "Familie-budget-fordeler",
-  "short_name": "Stabli",
+  "name": "BudgetBuddy – familiens budgetfordeler",
+  "short_name": "BudgetBuddy",
   "description": "Fordel familiens månedlige indkomst mellem fælles konti.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#EFF4FA",
-  "theme_color": "#0000A0",
+  "background_color": "#EDF1F6",
+  "theme_color": "#14243D",
   "lang": "da",
   "icons": [
     { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
