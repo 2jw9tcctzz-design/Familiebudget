@@ -59,7 +59,7 @@
     .stats{display:grid;gap:12px}
     .stat{border:1px solid var(--border);border-radius:24px;padding:16px;background:#fff;color:#0f172a}
     .stat .label{font-size:14px;color:#64748b}
-    .stat .value{font-size:30px;font-weight:700;margin-top:4px;color:#0f172a}
+    .stat .value{font-size:30px;font-weight:700;margin-top:4px;color:#0f172a;line-height:1.15}.value.value-sm{font-size:24px}.value.value-xs{font-size:20px}
     .stat .hint{font-size:12px;color:#64748b;margin-top:8px}
     .field{display:flex;flex-direction:column;gap:8px}
     .field label{font-size:14px;font-weight:600;color:#334155}
@@ -93,6 +93,8 @@
       .tabs::-webkit-scrollbar{display:none}
       .tab{flex:0 0 auto;white-space:nowrap;padding:12px 18px;scroll-snap-align:center}
       .outlay{padding:16px}
+      .grid>*{min-width:0}
+      .grid .stat{padding:14px}
       .outlay-row{grid-template-columns:1fr 96px 38px;gap:6px;align-items:center}
       .outlay-row input{height:42px;padding:0 10px}
       .outlay-row>*{min-width:0}
@@ -17328,9 +17330,11 @@ function Stat({ label, value, hint, tone = "default" }) {
         extra = "warnbg";
     if (tone === "dark")
         extra = "darkbg";
+var __vlen = (value == null ? "" : String(value)).length;
+    var __vcls = "value" + (__vlen >= 13 ? " value-xs" : (__vlen >= 10 ? " value-sm" : ""));
     return React.createElement("div", { className: `stat ${extra}` },
         React.createElement("div", { className: "label" }, label),
-        React.createElement("div", { className: "value" }, value),
+        React.createElement("div", { className: __vcls }, value),
         hint ? React.createElement("div", { className: "hint" }, hint) : null);
 }
 function NumberField({ label, value, onChange, helper }) {
@@ -17907,7 +17911,7 @@ Anders overfører fra Anders' lønkonto:
                 React.createElement("div", { className: "card-header" },
                     React.createElement("h3", null, "Kontrolpanel")),
                 React.createElement("div", { className: "card-body" },
-                    React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(4,1fr)', gap: 16 } },
+                    React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 } },
                         React.createElement(Stat, { label: "Tilbage p\u00E5 Anders' l\u00F8nkonto", value: formatCurrency(calc.postTransferLeft.anders) }),
                         React.createElement(Stat, { label: "Tilbage p\u00E5 Tinas l\u00F8nkonto", value: formatCurrency(calc.postTransferLeft.tina) }),
                         React.createElement(Stat, { label: "Forskel efter overf\u00F8rsler", value: formatCurrency(calc.imbalance), hint: "M\u00E5let er 0 kr.", tone: calc.imbalance === 0 ? 'good' : 'warn' }),
@@ -17972,7 +17976,7 @@ Anders overfører fra Anders' lønkonto:
                                 " fra startsaldoen som buffer.") : null);
                     }))))),
         React.createElement("div", { className: `section ${tab === 'dashboard' ? 'active' : ''}` },
-            React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(4,1fr)', gap: 16 } },
+            React.createElement("div", { className: "grid", style: { gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 16 } },
                 React.createElement(Stat, { label: "M\u00E5nedens samlede indkomst", value: formatCurrency(calc.totalIncome), hint: trend("totalIncome") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("totalIncome"))}` : "Gem flere måneder for trend", tone: "dark" }),
                 React.createElement(Stat, { label: "Mastercard denne m\u00E5ned", value: formatCurrency(calc.mastercardAmount), hint: trend("mastercard") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("mastercard"))}` : "Gem flere måneder for trend" }),
                 React.createElement(Stat, { label: "Til/fra boligindretning", value: formatCurrency(calc.actualBoligContribution), hint: trend("boligAmount") !== null ? `vs. forrige gemte måned: ${formatCurrency(trend("boligAmount"))}` : "Gem flere måneder for trend", tone: "good" }),
