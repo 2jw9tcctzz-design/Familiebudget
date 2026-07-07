@@ -97,6 +97,7 @@
 
     .bb-cta{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--copper);color:#fff;font-weight:700;font-size:16px;padding:16px;border-radius:16px;box-shadow:0 10px 22px -10px #b96a3488;width:100%}
     .bb-cta.compact{padding:13px;font-size:14.5px}
+    .bb-cta.go{background:var(--teal);box-shadow:0 10px 22px -10px #2e7d6b88}
     .bb-ctarow{display:grid;grid-template-columns:1fr auto;gap:10px}
     .bb-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);font-weight:700;font-size:14px;padding:13px 16px;border-radius:14px}
     .bb-ghost.danger{color:var(--danger);border-color:#e6c4bb}
@@ -130,6 +131,9 @@
     .bb-subtot span{font-size:13.5px;color:var(--muted);font-weight:600}
     .bb-subtot b{font-family:var(--serif);font-size:20px}
     .bb-mini{font-size:12.5px;font-weight:700;color:var(--copper-deep);background:var(--copper-tint);padding:7px 11px;border-radius:999px;white-space:nowrap}
+    .bb-mini:disabled{opacity:.45;cursor:default}
+    .bb-mini.danger{color:var(--danger);background:#F5E1DC}
+    .bb-cardfoot{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--line);padding-top:12px;margin-top:13px}
     .bb-osub{font-size:12px;color:var(--muted);margin-top:-6px}
     .bb-orow{display:grid;grid-template-columns:1fr 96px 38px;gap:6px;align-items:center}
     .bb-orow>*{min-width:0}
@@ -214,7 +218,7 @@
     .bb-hdet{font-size:11.5px;color:var(--muted);margin-top:1px}
 
     /* Peek FAB (live-chat style, hugs right edge) */
-    .bb-peek{position:fixed;left:0;bottom:22px;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:0 14px 14px 0;padding:12px 14px 12px 12px;box-shadow:8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
+    .bb-peek{position:fixed;right:0;bottom:22px;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:14px 0 0 14px;padding:12px 12px 12px 14px;box-shadow:-8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
     .bb-peekplus{width:21px;height:21px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
     .bb-peekplus svg{width:12px;height:12px}
     .bb-peektxt{letter-spacing:.3px}
@@ -225,6 +229,10 @@
     .bb-ptoggle{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .bb-ptoggle button{padding:12px;border-radius:13px;border:1px solid var(--line);background:#fff;font-weight:700;color:var(--ink2)}
     .bb-ptoggle button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+    .bb-ptoggle.three{grid-template-columns:repeat(3,1fr)}
+    .bb-ptoggle button{display:flex;align-items:center;justify-content:center;gap:7px}
+    .bb-pt-tick{width:17px;height:17px;border-radius:50%;background:var(--teal);display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto}
+    .bb-pt-tick svg{width:11px;height:11px}
 
     /* Desktop */
     @media (min-width: 900px){
@@ -17451,6 +17459,7 @@ const sampleHistory = [
     { monthLabel: "Januar 2026", totalIncome: 76500, totalNeedBeforeBolig: 73500, boligAmount: 3000, mastercard: 4200, foodOverdraft: 0, outlays: 1200, equalLeftEach: 1500 },
     { monthLabel: "Februar 2026", totalIncome: 78200, totalNeedBeforeBolig: 75600, boligAmount: 2600, mastercard: 5100, foodOverdraft: 700, outlays: 800, equalLeftEach: 1500 },
 ];
+const PHONES = { anders: "+4526818455", tina: "+4531237426" };
 const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
 const currentYear = new Date().getFullYear();
 const yearOptions = Array.from({ length: 9 }, (_, i) => String(currentYear - 2 + i));
@@ -17530,6 +17539,7 @@ function App() {
     const [checksOpen, setChecksOpen] = useState(false);
     const [copied, setCopied] = useState(false);
     const [copiedKey, setCopiedKey] = useState(null);
+    const [smsTarget, setSmsTarget] = useState('all');
     const [savedFlash, setSavedFlash] = useState(false);
     const [qPerson, setQPerson] = useState('anders');
     const [qText, setQText] = useState('');
@@ -17830,13 +17840,17 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
             alert(text);
         }
     };
-    const openSmsPlan = async () => {
-        const text = buildSimpleTransferText("all");
+    const openSmsPlan = async (target) => {
+        const t = target || smsTarget;
+        const text = buildSimpleTransferText(t);
         try {
             await navigator.clipboard.writeText(text);
         }
         catch { }
-        window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
+        const to = t === 'all' ? `${PHONES.anders},${PHONES.tina}` : PHONES[t];
+        const href = `sms:${to}?&body=${encodeURIComponent(text)}`;
+        window.__lastSmsHref = href;
+        window.location.href = href;
     };
     const exportSummary = async () => {
         const text = buildSimpleTransferText("all");
@@ -17997,14 +18011,14 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("div", { className: "bb-legend" }, segs.map(s => React.createElement("div", { key: s.key, className: "bb-lrow" },
                             React.createElement("span", { className: "bb-sw", style: { background: s.color } }),
                             React.createElement("span", { className: "bb-lnm" }, s.label),
-                            React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(s.amt)))))) : React.createElement("div", { className: "bb-empty" }, "Indtast m\u00E5nedens indkomst og behov, s\u00E5 tegnes fordelingen her.")),
-                React.createElement("button", { className: "bb-cta", onClick: () => { setStep(1); goto('input'); } },
+                            React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(s.amt)))))) : React.createElement("div", { className: "bb-empty" }, "Indtast m\u00E5nedens indkomst og behov, s\u00E5 tegnes fordelingen her."),
+                    React.createElement("div", { className: "bb-cardfoot" },
+                        React.createElement("button", { className: "bb-mini", disabled: calc.totalIncome === 0, onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem i historik'),
+                        React.createElement("button", { className: "bb-mini danger", onClick: resetDefaults }, "Nulstil m\u00E5ned"))),
+                React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(1); goto('input'); } },
                     "Start m\u00E5nedens fordeling ",
                     React.createElement("span", null, "\u2192")),
                 React.createElement("button", { className: "bb-ghost full", onClick: () => goto('transfers') }, "Se fordelingsplan"),
-                React.createElement("div", { className: "bb-ctarow" },
-                    React.createElement("button", { className: "bb-ghost", onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem måned i historik'),
-                    React.createElement("button", { className: "bb-ghost danger", onClick: resetDefaults }, "Nulstil")),
                 React.createElement("p", { className: "bb-note" }, "Alle indtastninger gemmes automatisk p\u00E5 denne enhed \u2013 du kan trygt lukke appen og forts\u00E6tte senere.")) : null,
             screen === 'input' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-stepper" }, [['Indkomst', step1Done], ['Behov', step2Done], ['Udlæg', step3Done]].map(([lbl, done], i) => {
@@ -18188,14 +18202,22 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         ok ? '✓' : '✗',
                         " ",
                         lbl))) : null,
-                React.createElement("div", { className: "bb-sharegrid" },
-                    React.createElement("button", { className: "bb-ghost", onClick: exportSummary }, copied ? 'Kopieret ✓' : 'Kopiér samlet plan'),
-                    React.createElement("button", { className: "bb-ghost", onClick: () => copySimpleTransferText('anders') }, "Kopi\u00E9r Anders"),
-                    React.createElement("button", { className: "bb-ghost", onClick: () => copySimpleTransferText('tina') }, "Kopi\u00E9r Tina"),
-                    React.createElement("button", { className: "bb-cta compact", onClick: openSmsPlan },
-                        "Send som SMS ",
-                        React.createElement("span", null, "\u2192"))),
-                React.createElement("p", { className: "bb-note" }, "SMS/iMessage \u00E5bnes med teksten udfyldt \u2014 du v\u00E6lger selv modtager og trykker send.")) : null,
+                React.createElement("div", { className: "bb-card pad" },
+                    React.createElement("div", { className: "bb-cap" },
+                        React.createElement("b", null, "Del planen"),
+                        React.createElement("span", null, "v\u00E6lg modtager")),
+                    React.createElement("div", { className: "bb-ptoggle three" }, [['anders', 'Anders'], ['tina', 'Tina'], ['all', 'Samlet']].map(([k, lbl]) => React.createElement("button", { key: k, className: smsTarget === k ? 'on' : '', onClick: () => setSmsTarget(k) },
+                        smsTarget === k ? React.createElement("span", { className: "bb-pt-tick" },
+                            React.createElement(Icon, { name: "check" })) : null,
+                        lbl))),
+                    React.createElement("div", { className: "bb-navrow" },
+                        React.createElement("button", { className: "bb-ghost", onClick: () => copySimpleTransferText(smsTarget) }, copied ? 'Kopieret ✓' : 'Kopiér tekst'),
+                        React.createElement("button", { className: "bb-cta compact", onClick: () => openSmsPlan() },
+                            "Send som SMS ",
+                            React.createElement("span", null, "\u2192"))),
+                    React.createElement("p", { className: "bb-note" },
+                        "SMS \u00E5bnes med modtager og tekst udfyldt \u2014 du trykker bare send. ",
+                        smsTarget === 'all' ? 'Samlet sendes til både Anders og Tina.' : (smsTarget === 'anders' ? 'Sendes til Anders.' : 'Sendes til Tina.')))) : null,
             screen === 'balances' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-eyebrow" }, "Konti"),
                 React.createElement("h2", { className: "bb-h2" }, "Forventede saldi efter fordeling"),
