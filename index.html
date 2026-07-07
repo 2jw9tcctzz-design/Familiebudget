@@ -34,7 +34,7 @@
     .bb-appbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 10px}
     .bb-burger{width:42px;height:42px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4.5px;box-shadow:0 1px 2px #14243d12;flex:0 0 auto}
     .bb-burger span{width:17px;height:2px;background:var(--ink);border-radius:2px}
-    .bb-wordmark{font-family:var(--serif);font-size:21px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+    .bb-wordmark{font-family:var(--serif);font-size:21px;font-weight:700;letter-spacing:.2px;white-space:nowrap;background:none;border:none;padding:4px 6px;border-radius:10px;color:var(--ink)}
     .bb-dot{color:var(--copper)}
     .bb-monthpill{display:flex;align-items:center;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 13px;font-size:13.5px;font-weight:700;color:var(--ink2);box-shadow:0 1px 2px #14243d12;white-space:nowrap;flex:0 1 auto;min-width:0}
     .bb-monthpill .bb-chev{width:13px;height:13px;display:inline-flex;color:var(--muted)}
@@ -60,7 +60,6 @@
     .bb-quickitem{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;font-size:14.5px;font-weight:700;color:var(--ink);background:var(--copper-tint);border:1px dashed #d9a878;margin-top:4px;width:100%;text-align:left}
     .bb-qp{width:22px;height:22px;border-radius:50%;background:var(--copper);color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
     .bb-qp svg{width:13px;height:13px}
-    .bb-qsek{margin-left:auto;font-size:10.5px;color:var(--copper-deep);font-weight:700;letter-spacing:.5px}
     .bb-navfoot{margin-top:auto;padding:12px;font-size:12px;color:var(--muted)}
 
     /* Screens */
@@ -105,6 +104,9 @@
     .bb-note{font-size:12.5px;color:var(--muted);line-height:1.45}
     .bb-note.top{margin-top:-6px}
 
+    .bb-navrow{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:stretch}
+    .bb-navrow .bb-ghost{white-space:nowrap}
+
     /* Stepper */
     .bb-stepper{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     .bb-step{display:flex;align-items:center;gap:7px;padding:4px 2px}
@@ -145,7 +147,14 @@
     .bb-tnm{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .bb-tsub{font-size:11.5px;color:var(--muted)}
     .bb-tamt{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto}
-    .bb-cp{width:34px;height:34px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
+    .bb-done{width:26px;height:26px;border-radius:8px;border:2px solid #C7D0DC;background:#fff;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;transition:background .15s ease,border-color .15s ease}
+    .bb-done.on{background:var(--teal);border-color:var(--teal)}
+    .bb-done svg{width:14px;height:14px}
+    .bb-trow.done{background:var(--teal-tint);border-color:#bfded5}
+    .bb-trow.done .bb-tnm{color:#3c6f61}
+    .bb-trow.done .bb-tamt{color:var(--teal)}
+    .bb-cp{width:34px;height:34px;border-radius:10px;background:var(--paper);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto;transition:background .15s ease,color .15s ease,border-color .15s ease}
+    .bb-cp.copied{background:var(--teal);border-color:var(--teal);color:#fff}
     .bb-cp svg{width:15px;height:15px}
     .bb-pocketbox{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:11px 14px;font-size:13px;color:var(--ink2)}
     .bb-pocketbox b{font-size:15px;color:var(--ink)}
@@ -205,7 +214,7 @@
     .bb-hdet{font-size:11.5px;color:var(--muted);margin-top:1px}
 
     /* Peek FAB (live-chat style, hugs right edge) */
-    .bb-peek{position:fixed;right:0;top:62%;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:14px 0 0 14px;padding:12px 12px 12px 13px;box-shadow:-8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
+    .bb-peek{position:fixed;left:0;bottom:22px;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:0 14px 14px 0;padding:12px 14px 12px 12px;box-shadow:8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
     .bb-peekplus{width:21px;height:21px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
     .bb-peekplus svg{width:12px;height:12px}
     .bb-peektxt{letter-spacing:.3px}
@@ -17436,6 +17445,7 @@ const initialMonth = {
     mastercardAmount: "",
     pocketMoneyEach: "",
     outlaysConfirmed: false,
+    transfersDone: {},
 };
 const sampleHistory = [
     { monthLabel: "Januar 2026", totalIncome: 76500, totalNeedBeforeBolig: 73500, boligAmount: 3000, mastercard: 4200, foodOverdraft: 0, outlays: 1200, equalLeftEach: 1500 },
@@ -17519,6 +17529,7 @@ function App() {
     const [monthSheet, setMonthSheet] = useState(false); // month/year picker
     const [checksOpen, setChecksOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [copiedKey, setCopiedKey] = useState(null);
     const [savedFlash, setSavedFlash] = useState(false);
     const [qPerson, setQPerson] = useState('anders');
     const [qText, setQText] = useState('');
@@ -17785,32 +17796,28 @@ function App() {
         URL.revokeObjectURL(url);
     };
     const buildSimpleTransferText = (person = "all") => {
+        const box = "\u2610"; // ☐ checkbox
+        const lines = (t, name) => `${name.toUpperCase()} \u2013 i alt ${formatCurrency(t.total)}
+${box} ${formatCurrency(t.regninger)} \u2192 Regninger
+${box} ${formatCurrency(t.afdragsfrihed)} \u2192 Afdragsfrihed
+${box} ${formatCurrency(t.mad)} \u2192 Mad
+${box} ${formatCurrency(t.albertAsk)} \u2192 Albert ASK
+${box} ${formatCurrency(t.emmaAsk)} \u2192 Emma ASK
+${box} ${formatCurrency(t.bolig)} \u2192 Boligindretning
+${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
         const boligText = calc.transfers.bolig.budget > 0
             ? `\n\nBoligkontoen skyder ind: ${formatCurrency(calc.transfers.bolig.budget)}`
             : calc.actualBoligContribution > 0
                 ? `\n\nOverskud til boligkonto: ${formatCurrency(calc.actualBoligContribution)}`
                 : "";
-        const andersText = `Anders overfører i alt: ${formatCurrency(calc.transfers.anders.total)}
-- ${formatCurrency(calc.transfers.anders.regninger)} til Fælleskonto til regninger
-- ${formatCurrency(calc.transfers.anders.afdragsfrihed)} til Fælleskonto til opsparing afdragsfrihed
-- ${formatCurrency(calc.transfers.anders.mad)} til Fælleskonto til mad
-- ${formatCurrency(calc.transfers.anders.albertAsk)} til Albert aktiesparekonto
-- ${formatCurrency(calc.transfers.anders.emmaAsk)} til Emma aktiesparekonto
-- ${formatCurrency(calc.transfers.anders.bolig)} til Fælleskonto til opsparing til boligindretning
-- ${formatCurrency(calc.transfers.anders.pocket)} bliver stående som lommepenge`;
-        const tinaText = `Tina overfører i alt: ${formatCurrency(calc.transfers.tina.total)}
-- ${formatCurrency(calc.transfers.tina.regninger)} til Fælleskonto til regninger
-- ${formatCurrency(calc.transfers.tina.afdragsfrihed)} til Fælleskonto til opsparing afdragsfrihed
-- ${formatCurrency(calc.transfers.tina.mad)} til Fælleskonto til mad
-- ${formatCurrency(calc.transfers.tina.albertAsk)} til Albert aktiesparekonto
-- ${formatCurrency(calc.transfers.tina.emmaAsk)} til Emma aktiesparekonto
-- ${formatCurrency(calc.transfers.tina.bolig)} til Fælleskonto til opsparing til boligindretning
-- ${formatCurrency(calc.transfers.tina.pocket)} bliver stående som lommepenge`;
+        const header = `${data.monthLabel || "M\u00e5ned"} \u2013 OVERF\u00d8RSLER\nS\u00e6t kryds n\u00e5r overf\u00f8rslen er lavet:`;
+        const andersText = lines(calc.transfers.anders, "Anders");
+        const tinaText = lines(calc.transfers.tina, "Tina");
         if (person === "anders")
-            return `${data.monthLabel || "Måned"}\n\n${andersText}${boligText}`;
+            return `${header}\n\n${andersText}${boligText}`;
         if (person === "tina")
-            return `${data.monthLabel || "Måned"}\n\n${tinaText}${boligText}`;
-        return `${data.monthLabel || "Måned"}\n\n${andersText}\n\n${tinaText}${boligText}`;
+            return `${header}\n\n${tinaText}${boligText}`;
+        return `${header}\n\n${andersText}\n\n${tinaText}${boligText}`;
     };
     const copySimpleTransferText = async (person) => {
         const text = buildSimpleTransferText(person);
@@ -17832,19 +17839,7 @@ function App() {
         window.location.href = `sms:?&body=${encodeURIComponent(text)}`;
     };
     const exportSummary = async () => {
-        const text = `${data.monthLabel}
-
-OVERFØRSLER
-
-Anders overfører fra Anders' lønkonto:
-- ${formatCurrency(calc.transfers.anders.regninger)} til Fælleskonto til regninger
-- ${formatCurrency(calc.transfers.anders.afdragsfrihed)} til Fælleskonto til opsparing afdragsfrihed
-- ${formatCurrency(calc.transfers.anders.mad)} til Fælleskonto til mad
-- ${formatCurrency(calc.transfers.anders.albertAsk)} til Albert aktiesparekonto
-- ${formatCurrency(calc.transfers.anders.emmaAsk)} til Emma aktiesparekonto
-- ${formatCurrency(calc.transfers.anders.bolig)} til Fælleskonto til opsparing til boligindretning
-- Lader ${formatCurrency(calc.transfers.anders.pocket)} stå på Anders' lønkonto som lommepenge
-- Samlet overførsel: ${formatCurrency(calc.transfers.anders.total)}`;
+        const text = buildSimpleTransferText("all");
         try {
             await navigator.clipboard.writeText(text);
             setCopied(true);
@@ -17878,6 +17873,15 @@ Anders overfører fra Anders' lønkonto:
     const allOk = checksPassed === allChecks.length;
     const ready = step1Done && step2Done && allOk;
     const goto = (s) => { setScreen(s); setDrawer(false); window.scrollTo(0, 0); };
+    const toggleTransferDone = (key) => setData(prev => ({ ...prev, transfersDone: { ...(prev.transfersDone || {}), [key]: !(prev.transfersDone || {})[key] } }));
+    const copyAmount = async (key, amt) => {
+        try {
+            await navigator.clipboard.writeText(String(amt));
+        }
+        catch { }
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey(k => k === key ? null : k), 1300);
+    };
     const openQuick = () => { setQPerson('anders'); setQText(''); setQAmount(''); setSheet(true); setDrawer(false); };
     const saveQuick = () => {
         if (!qAmount) {
@@ -17932,11 +17936,11 @@ Anders overfører fra Anders' lønkonto:
                 React.createElement("span", null),
                 React.createElement("span", null),
                 React.createElement("span", null)),
-            React.createElement("div", { className: "bb-wordmark" },
+            React.createElement("button", { className: "bb-wordmark", onClick: () => goto('home'), "aria-label": "Til forsiden" },
                 "BudgetBuddy",
                 React.createElement("span", { className: "bb-dot" }, ".")),
-            React.createElement("button", { className: "bb-monthpill", onClick: () => setMonthSheet(true) },
-                data.monthLabel || 'Vælg måned',
+            React.createElement("button", { className: "bb-monthpill", onClick: () => setMonthSheet(true), "aria-label": "Om m\u00E5neden" },
+                data.monthLabel || 'Ingen måned',
                 " ",
                 React.createElement("span", { className: "bb-chev" },
                     React.createElement(Icon, { name: "chev" })))),
@@ -17962,8 +17966,7 @@ Anders overfører fra Anders' lønkonto:
             React.createElement("button", { className: "bb-quickitem", onClick: openQuick },
                 React.createElement("span", { className: "bb-qp" },
                     React.createElement(Icon, { name: "plus" })),
-                " Nyt udl\u00E6g",
-                React.createElement("span", { className: "bb-qsek" }, "10 SEK.")),
+                " Nyt udl\u00E6g"),
             React.createElement("div", { className: "bb-navfoot" }, "Alt gemmes automatisk p\u00E5 din enhed")),
         React.createElement("main", { className: "bb-main" },
             screen === 'home' ? React.createElement("div", { className: "bb-screen" },
@@ -17995,9 +17998,10 @@ Anders overfører fra Anders' lønkonto:
                             React.createElement("span", { className: "bb-sw", style: { background: s.color } }),
                             React.createElement("span", { className: "bb-lnm" }, s.label),
                             React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(s.amt)))))) : React.createElement("div", { className: "bb-empty" }, "Indtast m\u00E5nedens indkomst og behov, s\u00E5 tegnes fordelingen her.")),
-                React.createElement("button", { className: "bb-cta", onClick: () => goto('transfers') },
-                    "Se fordelingsplan ",
+                React.createElement("button", { className: "bb-cta", onClick: () => { setStep(1); goto('input'); } },
+                    "Start m\u00E5nedens fordeling ",
                     React.createElement("span", null, "\u2192")),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => goto('transfers') }, "Se fordelingsplan"),
                 React.createElement("div", { className: "bb-ctarow" },
                     React.createElement("button", { className: "bb-ghost", onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem måned i historik'),
                     React.createElement("button", { className: "bb-ghost danger", onClick: resetDefaults }, "Nulstil")),
@@ -18035,9 +18039,11 @@ Anders overfører fra Anders' lønkonto:
                         React.createElement("div", { className: "bb-subtot" },
                             React.createElement("span", null, "Samlet indkomst"),
                             React.createElement("b", null, formatCurrency(calc.totalIncome)))),
-                    React.createElement("button", { className: "bb-cta", onClick: () => setStep(2) },
-                        "N\u00E6ste: Faste behov ",
-                        React.createElement("span", null, "\u2192"))) : null,
+                    React.createElement("div", { className: "bb-navrow" },
+                        React.createElement("button", { className: "bb-ghost", onClick: () => goto('home') }, "\u2190 Forside"),
+                        React.createElement("button", { className: "bb-cta", onClick: () => setStep(2) },
+                            "N\u00E6ste: Faste behov ",
+                            React.createElement("span", null, "\u2192")))) : null,
                 step === 2 ? React.createElement(React.Fragment, null,
                     React.createElement("h2", { className: "bb-h2" }, "Faste behov"),
                     React.createElement("div", { className: "bb-card pad" },
@@ -18051,9 +18057,11 @@ Anders overfører fra Anders' lønkonto:
                         React.createElement("div", { className: "bb-subtot" },
                             React.createElement("span", null, "Faste behov i alt"),
                             React.createElement("b", null, formatCurrency(calc.regningerNeed + calc.afdragsfrihed + calc.madNeed + calc.childrenSavings)))),
-                    React.createElement("button", { className: "bb-cta", onClick: () => setStep(3) },
-                        "N\u00E6ste: Udl\u00E6g ",
-                        React.createElement("span", null, "\u2192"))) : null,
+                    React.createElement("div", { className: "bb-navrow" },
+                        React.createElement("button", { className: "bb-ghost", onClick: () => setStep(1) }, "\u2190 Indkomst"),
+                        React.createElement("button", { className: "bb-cta", onClick: () => setStep(3) },
+                            "N\u00E6ste: Udl\u00E6g ",
+                            React.createElement("span", null, "\u2192")))) : null,
                 step === 3 ? React.createElement(React.Fragment, null,
                     React.createElement("h2", { className: "bb-h2" }, "Udl\u00E6g"),
                     ['anders', 'tina'].map(pk => React.createElement("div", { key: pk, className: "bb-card pad" },
@@ -18072,9 +18080,11 @@ Anders overfører fra Anders' lønkonto:
                         React.createElement("div", { className: "bb-subtot" },
                             React.createElement("span", null, "Samlet udl\u00E6g"),
                             React.createElement("b", null, formatCurrency(pk === 'anders' ? calc.andersOutlays : calc.tinaOutlays))))),
-                    React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); goto('transfers'); } },
-                        "F\u00E6rdig \u2014 se fordelingsplan ",
-                        React.createElement("span", null, "\u2192"))) : null) : null,
+                    React.createElement("div", { className: "bb-navrow" },
+                        React.createElement("button", { className: "bb-ghost", onClick: () => setStep(2) }, "\u2190 Behov"),
+                        React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); goto('transfers'); } },
+                            "F\u00E6rdig \u2014 se plan ",
+                            React.createElement("span", null, "\u2192")))) : null) : null,
             screen === 'transfers' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-eyebrow" }, "Fordelingsplan"),
                 React.createElement("h2", { className: "bb-h2" }, "S\u00E5dan flytter I pengene"),
@@ -18089,26 +18099,28 @@ Anders overfører fra Anders' lønkonto:
                             " overf\u00F8rer \u00B7 i alt ",
                             formatCurrency(t.total)),
                         [
-                            ['Fælleskonto til regninger', t.regninger],
-                            ['Fælleskonto til opsparing afdragsfrihed', t.afdragsfrihed],
-                            ['Fælleskonto til mad', t.mad],
-                            ['Albert aktiesparekonto', t.albertAsk],
-                            ['Emma aktiesparekonto', t.emmaAsk],
-                            ['Fælleskonto til opsparing til boligindretning', t.bolig],
-                        ].map(([to, amt]) => React.createElement("div", { key: to, className: "bb-trow" },
-                            React.createElement("div", { className: "bb-tinfo" },
-                                React.createElement("div", { className: "bb-tnm" }, to),
-                                React.createElement("div", { className: "bb-tsub" },
-                                    "fra ",
-                                    name,
-                                    pk === 'anders' ? "'" : "s",
-                                    " l\u00F8nkonto")),
-                            React.createElement("span", { className: "bb-tamt" }, new Intl.NumberFormat('da-DK').format(amt)),
-                            React.createElement("button", { className: "bb-cp", "aria-label": `Kopiér ${amt}`, onClick: async () => { try {
-                                    await navigator.clipboard.writeText(String(amt));
-                                }
-                                catch { } } },
-                                React.createElement(Icon, { name: "copy" })))),
+                            ['regninger', 'Fælleskonto til regninger', t.regninger],
+                            ['afdragsfrihed', 'Fælleskonto til opsparing afdragsfrihed', t.afdragsfrihed],
+                            ['mad', 'Fælleskonto til mad', t.mad],
+                            ['albertAsk', 'Albert aktiesparekonto', t.albertAsk],
+                            ['emmaAsk', 'Emma aktiesparekonto', t.emmaAsk],
+                            ['bolig', 'Fælleskonto til opsparing til boligindretning', t.bolig],
+                        ].map(([ck, to, amt]) => {
+                            const dkey = `${pk}-${ck}`;
+                            const done = !!(data.transfersDone || {})[dkey];
+                            const copiedNow = copiedKey === dkey;
+                            return React.createElement("div", { key: ck, className: `bb-trow ${done ? 'done' : ''}` },
+                                React.createElement("button", { className: `bb-done ${done ? 'on' : ''}`, "aria-label": done ? 'Fjern flueben' : 'Markér som overført', onClick: () => toggleTransferDone(dkey) }, done ? React.createElement(Icon, { name: "check" }) : null),
+                                React.createElement("div", { className: "bb-tinfo" },
+                                    React.createElement("div", { className: "bb-tnm" }, to),
+                                    React.createElement("div", { className: "bb-tsub" },
+                                        "fra ",
+                                        name,
+                                        pk === 'anders' ? "'" : "s",
+                                        " l\u00F8nkonto")),
+                                React.createElement("span", { className: "bb-tamt" }, new Intl.NumberFormat('da-DK').format(amt)),
+                                React.createElement("button", { className: `bb-cp ${copiedNow ? 'copied' : ''}`, "aria-label": `Kopiér ${amt}`, onClick: () => copyAmount(dkey, amt) }, copiedNow ? React.createElement(Icon, { name: "check" }) : React.createElement(Icon, { name: "copy" })));
+                        }),
                         React.createElement("div", { className: "bb-pocketbox" },
                             "Bliver st\u00E5ende som lommepenge: ",
                             React.createElement("b", null, formatCurrency(t.pocket)),
@@ -18264,7 +18276,7 @@ Anders overfører fra Anders' lønkonto:
                     React.createElement(Field, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Albert." }),
                     React.createElement(Field, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Emma." }),
                     React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." }))) : null),
-        !sheet && !drawer ? React.createElement("button", { className: "bb-peek", "aria-label": "Nyt udl\u00E6g", onClick: openQuick },
+        screen === 'home' && !sheet && !drawer && !monthSheet ? React.createElement("button", { className: "bb-peek", "aria-label": "Nyt udl\u00E6g", onClick: openQuick },
             React.createElement("span", { className: "bb-peekplus" },
                 React.createElement(Icon, { name: "plus" })),
             React.createElement("span", { className: "bb-peektxt" }, "Udl\u00E6g")) : null,
@@ -18284,19 +18296,22 @@ Anders overfører fra Anders' lønkonto:
                 React.createElement("button", { className: "bb-ghost full", onClick: () => setSheet(false) }, "Annull\u00E9r"))) : null,
         monthSheet ? React.createElement(React.Fragment, null,
             React.createElement("div", { className: "bb-scrim", onClick: () => setMonthSheet(false) }),
-            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "V\u00E6lg m\u00E5ned" },
+            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Om m\u00E5neden" },
                 React.createElement("div", { className: "bb-sheethandle" }),
-                React.createElement("h3", { className: "bb-h3" }, "V\u00E6lg m\u00E5ned"),
-                React.createElement("div", { className: "bb-inline2" },
-                    React.createElement("div", { className: "bb-field" },
-                        React.createElement("label", null, "M\u00E5ned"),
-                        React.createElement("select", { value: selectedMonth, onChange: e => updateMonthYear(e.target.value, selectedYear) },
-                            React.createElement("option", { value: "" }, "V\u00E6lg m\u00E5ned"),
-                            monthNames.map((m) => React.createElement("option", { key: m, value: m }, m)))),
-                    React.createElement("div", { className: "bb-field" },
-                        React.createElement("label", null, "\u00C5r"),
-                        React.createElement("select", { value: selectedYear, onChange: e => updateMonthYear(selectedMonth, e.target.value) }, yearOptions.map((y) => React.createElement("option", { key: y, value: y }, y))))),
-                React.createElement("button", { className: "bb-cta", onClick: () => setMonthSheet(false) }, "F\u00E6rdig"))) : null);
+                React.createElement("h3", { className: "bb-h3" }, data.monthLabel ? `Du arbejder med ${data.monthLabel}` : 'Ingen måned valgt endnu'),
+                React.createElement("p", { className: "bb-note" },
+                    "Forsiden viser altid den m\u00E5ned, du er i gang med. M\u00E5neden v\u00E6lges som f\u00F8rste trin under ",
+                    React.createElement("b", null, "Indtastning"),
+                    "."),
+                React.createElement("p", { className: "bb-note" },
+                    "Vil du se en tidligere m\u00E5ned? Gemte m\u00E5neder ligger under ",
+                    React.createElement("b", null, "Dashboard \u2192 Gemte m\u00E5neder"),
+                    "."),
+                React.createElement("button", { className: "bb-cta", onClick: () => { setMonthSheet(false); setStep(1); goto('input'); } },
+                    data.monthLabel ? 'Skift måned i Indtastning' : 'Vælg måned i Indtastning',
+                    " ",
+                    React.createElement("span", null, "\u2192")),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => setMonthSheet(false) }, "Luk"))) : null);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 

@@ -1,6 +1,6 @@
 // Stabli service worker — offline caching
 // Bump CACHE_VERSION whenever you upload a new index.html so phones fetch the update.
-const CACHE_VERSION = "budgetbuddy-v11";
+const CACHE_VERSION = "budgetbuddy-v12";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
