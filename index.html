@@ -142,6 +142,8 @@
     .bb-orow button svg{width:14px;height:14px}
     .bb-orow button:disabled{opacity:.35;cursor:default}
 
+    .bb-nonerow{display:flex;align-items:center;gap:11px;font-size:14px;font-weight:600;color:var(--ink2);padding:4px 2px;text-align:left}
+
     /* Transfers */
     .bb-tgroup{display:flex;flex-direction:column;gap:8px}
     .bb-ghead{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);margin-top:4px}
@@ -219,8 +221,9 @@
 
     /* Home (state-aware) */
     .bb-homec{align-items:center;text-align:center}
-    .bb-illuring{position:relative;margin-top:2px}
-    .bb-ringlbl{position:absolute;left:50%;transform:translateX(-50%);bottom:26px;width:130px}
+    .bb-illuring{position:relative;margin-top:14px}
+    .bb-homeeye{margin-top:22px}
+    .bb-ringlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
     .bb-ringlbl b{font-family:var(--serif);font-size:26px;font-weight:700;display:block;line-height:1}
     .bb-ringlbl b small{font-size:14px;color:#9AA7B8;font-weight:700}
     .bb-ringlbl span{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px}
@@ -18051,42 +18054,43 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
             React.createElement("div", { className: "bb-navfoot" }, "Alt gemmes automatisk p\u00E5 din enhed")),
         React.createElement("main", { className: "bb-main" },
             screen === 'home' ? React.createElement("div", { className: "bb-screen bb-homec" },
+                doneCount === 0 ? React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "bb-eyebrow center bb-homeeye" },
+                        (data.monthLabel || `${monthNames[new Date().getMonth()]} ${new Date().getFullYear()}`).split(' ')[0],
+                        " venter"),
+                    React.createElement("h1", { className: "bb-homeh" }, "Klar til m\u00E5nedens fordeling?")) : null,
+                doneCount > 0 && doneCount < 3 ? React.createElement(React.Fragment, null,
+                    data.monthLabel ? React.createElement("div", { className: "bb-eyebrow center bb-homeeye" }, data.monthLabel) : null,
+                    React.createElement("h1", { className: "bb-homeh" }, "Godt i gang")) : null,
+                doneCount === 3 ? React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "bb-eyebrow center bb-homeeye" },
+                        data.monthLabel,
+                        " \u00B7 ",
+                        formatCurrency(calc.totalIncome)),
+                    React.createElement("h1", { className: "bb-homeh" }, "Fordelingen er klar")) : null,
                 React.createElement("div", { className: "bb-illuring" },
-                    React.createElement("svg", { width: "250", height: "240", viewBox: "0 0 280 268", "aria-hidden": "true" },
-                        React.createElement("circle", { cx: "86", cy: "34", r: "24", fill: "#14243D" }),
-                        React.createElement("text", { x: "86", y: "41", textAnchor: "middle", fontFamily: "Caladea, Cambria, serif", fontSize: "17", fontWeight: "700", fill: "#fff" }, "A"),
-                        React.createElement("circle", { cx: "194", cy: "34", r: "24", fill: "#B96A34" }),
-                        React.createElement("text", { x: "194", y: "41", textAnchor: "middle", fontFamily: "Caladea, Cambria, serif", fontSize: "17", fontWeight: "700", fill: "#fff" }, "T"),
-                        React.createElement("path", { d: "M86 62 C86 96 116 96 128 122", stroke: doneCount > 0 ? '#14243D' : '#9BB0C6', strokeWidth: "3.5", fill: "none" }),
-                        React.createElement("path", { d: "M194 62 C194 96 164 96 152 122", stroke: doneCount > 0 ? '#B96A34' : '#D9A878', strokeWidth: "3.5", fill: "none" }),
-                        React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "#fff" }),
-                        React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#DFE6EE", strokeWidth: "11" }),
+                    React.createElement("svg", { width: "222", height: "222", viewBox: "0 0 210 210", "aria-hidden": "true" },
+                        React.createElement("circle", { cx: "105", cy: "105", r: "92", fill: "none", stroke: "#DFE6EE", strokeWidth: "14" }),
+                        React.createElement("circle", { cx: "105", cy: "105", r: "72", fill: "#fff" }),
                         doneCount === 3
                             ? React.createElement(React.Fragment, null,
-                                React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#2E7D6B", strokeWidth: "11" }),
-                                React.createElement("path", { d: "M114 190 l17 17 34-38", stroke: "#2E7D6B", strokeWidth: "10", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" }))
+                                React.createElement("circle", { cx: "105", cy: "105", r: "92", fill: "none", stroke: "#2E7D6B", strokeWidth: "14" }),
+                                React.createElement("path", { d: "M76 108 l19 19 39-44", stroke: "#2E7D6B", strokeWidth: "11", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" }))
                             : (doneCount > 0
-                                ? React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#2E7D6B", strokeWidth: "11", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 414.7} 414.7`, transform: "rotate(-90 140 188)" })
-                                : null)),
+                                ? React.createElement("circle", { cx: "105", cy: "105", r: "92", fill: "none", stroke: "#2E7D6B", strokeWidth: "14", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 578} 578`, transform: "rotate(-90 105 105)" })
+                                : React.createElement("circle", { cx: "105", cy: "13", r: "8", fill: "#2E7D6B" }))),
                     doneCount < 3 ? React.createElement("div", { className: "bb-ringlbl" },
                         React.createElement("b", null,
                             doneCount,
                             React.createElement("small", null, " af 3")),
-                        React.createElement("span", null, "TRIN FULDF\u00D8RT")) : null),
+                        React.createElement("span", null, "trin fuldf\u00F8rt")) : null),
                 doneCount === 0 ? React.createElement(React.Fragment, null,
-                    React.createElement("h1", { className: "bb-homeh" },
-                        "To l\u00F8nninger.",
-                        React.createElement("br", null),
-                        "\u00C9n ligev\u00E6rdig fordeling."),
-                    React.createElement("p", { className: "bb-homep" }, "BudgetBuddy samler m\u00E5nedens indkomst og fordeler den til jeres f\u00E6lles poster \u2014 klar til at overf\u00F8re i mobilbanken."),
                     React.createElement("div", { className: "bb-homemeta" }, "Ca. 5 minutter \u00B7 alt bliver p\u00E5 telefonen"),
                     React.createElement("div", { className: "bb-homespacer" }),
                     React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(1); goto('input'); } },
-                        "Start m\u00E5nedens fordeling ",
+                        "Start trin 1: Indkomst ",
                         React.createElement("span", null, "\u2192"))) : null,
                 doneCount > 0 && doneCount < 3 ? React.createElement(React.Fragment, null,
-                    data.monthLabel ? React.createElement("div", { className: "bb-eyebrow center" }, data.monthLabel) : null,
-                    React.createElement("h1", { className: "bb-homeh" }, "Godt i gang"),
                     React.createElement("p", { className: "bb-homep" }, !step1Done ? 'Mangler måned eller indkomst — start med trin 1.' : (!step2Done ? 'Indkomsten er på plads. Mangler de faste behov.' : 'Indkomst og faste behov er på plads. Mangler kun månedens udlæg — så er fordelingen klar.')),
                     React.createElement("div", { className: "bb-homespacer" }),
                     React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(!step1Done ? 1 : (!step2Done ? 2 : 3)); goto('input'); } },
@@ -18096,11 +18100,6 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("span", null, "\u2192")),
                     React.createElement("button", { className: "bb-mini danger center", onClick: resetDefaults }, "Nulstil m\u00E5ned")) : null,
                 doneCount === 3 ? React.createElement(React.Fragment, null,
-                    React.createElement("div", { className: "bb-eyebrow center" },
-                        data.monthLabel,
-                        " \u00B7 ",
-                        formatCurrency(calc.totalIncome)),
-                    React.createElement("h1", { className: "bb-homeh" }, "Fordelingen er klar"),
                     React.createElement("div", { className: "bb-card" },
                         React.createElement("div", { className: "bb-cap" },
                             React.createElement("b", null, "S\u00E5dan fordeles m\u00E5neden"),
@@ -18195,9 +18194,12 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("div", { className: "bb-subtot" },
                             React.createElement("span", null, "Samlet udl\u00E6g"),
                             React.createElement("b", null, formatCurrency(pk === 'anders' ? calc.andersOutlays : calc.tinaOutlays))))),
+                    calc.totalOutlays === 0 ? React.createElement("button", { className: "bb-nonerow", onClick: () => setData(prev => ({ ...prev, outlaysConfirmed: !prev.outlaysConfirmed })) },
+                        React.createElement("span", { className: `bb-done ${data.outlaysConfirmed ? 'on' : ''}` }, data.outlaysConfirmed ? React.createElement(Icon, { name: "check" }) : null),
+                        "Ingen f\u00E6lles udl\u00E6g denne m\u00E5ned") : null,
                     React.createElement("div", { className: "bb-navrow" },
                         React.createElement("button", { className: "bb-ghost", onClick: () => setStep(2) }, "\u2190 Behov"),
-                        React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); showPlan(); } },
+                        React.createElement("button", { className: "bb-cta", onClick: showPlan },
                             "F\u00E6rdig \u2014 se plan ",
                             React.createElement("span", null, "\u2192")))) : null) : null,
             screen === 'transfers' ? React.createElement("div", { className: "bb-screen" },
