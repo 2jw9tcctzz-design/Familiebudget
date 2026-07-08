@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#14243D" />
+  <meta name="theme-color" content="#EDF1F6" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="BudgetBuddy" />
@@ -21,6 +21,7 @@
     }
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{overflow-x:hidden}
+    html{background:var(--paper)}
     body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:16px}
     button{font-family:var(--sans);cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
     button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #B96A3455;outline-offset:1px}
@@ -42,8 +43,8 @@
 
     /* Drawer */
     .bb-scrim{position:fixed;inset:0;background:#0c1626a8;z-index:40}
-    .bb-drawer{position:fixed;top:0;left:0;bottom:0;width:288px;max-width:84vw;background:var(--paper);border-radius:0 24px 24px 0;box-shadow:24px 0 60px -20px #0c1626aa;padding:22px 16px;display:flex;flex-direction:column;gap:6px;z-index:50;transform:translateX(-105%);transition:transform .22s ease}
-    .bb-drawer.open{transform:translateX(0)}
+    .bb-drawer{visibility:hidden;position:fixed;top:0;left:0;bottom:0;width:288px;max-width:84vw;background:var(--paper);border-radius:0 24px 24px 0;box-shadow:24px 0 60px -20px #0c1626aa;padding:22px 16px;display:flex;flex-direction:column;gap:6px;z-index:50;transform:translateX(-105%);transition:transform .22s ease}
+    .bb-drawer.open{visibility:visible;transform:translateX(0)}
     .bb-brand{padding:6px 10px 16px}
     .bb-wm{font-family:var(--serif);font-size:24px;font-weight:700}
     .bb-sub{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:2px}
@@ -102,6 +103,9 @@
     .bb-ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);font-weight:700;font-size:14px;padding:13px 16px;border-radius:14px}
     .bb-ghost.danger{color:var(--danger);border-color:#e6c4bb}
     .bb-ghost.full{width:100%}
+    .bb-ghost.go2{color:var(--teal);border-color:#BFDED5}
+    .bb-hmain{background:none;border:none;padding:0;text-align:left;cursor:pointer}
+    .bb-hload{font-size:11px;font-weight:700;color:var(--copper-deep);margin-left:6px}
     .bb-note{font-size:12.5px;color:var(--muted);line-height:1.45}
     .bb-note.top{margin-top:-6px}
 
@@ -17603,6 +17607,8 @@ function App() {
     const [copiedKey, setCopiedKey] = useState(null);
     const [smsTarget, setSmsTarget] = useState('all');
     const [revealing, setRevealing] = useState(false);
+    const [endSheet, setEndSheet] = useState(false);
+    const [loadRow, setLoadRow] = useState(null);
     const [countRun, setCountRun] = useState(0);
     const [savedFlash, setSavedFlash] = useState(false);
     const [qPerson, setQPerson] = useState('anders');
@@ -17826,23 +17832,60 @@ function App() {
         return { ...prev, people: { ...prev.people, [personKey]: { ...prev.people[personKey], outlayLines: nextLines } } };
     });
     const updateOutlayLine = (personKey, lineId, field, value) => setData(prev => ({ ...prev, people: { ...prev.people, [personKey]: { ...prev.people[personKey], outlayLines: prev.people[personKey].outlayLines.map((line) => line.id === lineId ? { ...line, [field]: value } : line) } } }));
+    const buildHistoryEntry = () => ({
+        monthLabel: data.monthLabel,
+        totalIncome: calc.totalIncome,
+        totalNeedBeforeBolig: calc.totalNeedBeforeBolig,
+        boligAmount: calc.actualBoligContribution,
+        mastercard: calc.mastercardAmount,
+        foodOverdraft: parse(data.foodOverdraft),
+        outlays: calc.totalOutlays,
+        equalLeftEach: calc.equalLeftEach,
+        snapshot: JSON.parse(JSON.stringify(data)),
+    });
     const saveCurrentMonth = () => {
-        const entry = {
-            monthLabel: data.monthLabel,
-            totalIncome: calc.totalIncome,
-            totalNeedBeforeBolig: calc.totalNeedBeforeBolig,
-            boligAmount: calc.actualBoligContribution,
-            mastercard: calc.mastercardAmount,
-            foodOverdraft: parse(data.foodOverdraft),
-            outlays: calc.totalOutlays,
-            equalLeftEach: calc.equalLeftEach,
-        };
+        const entry = buildHistoryEntry();
         setHistory((prev) => {
             const filtered = prev.filter((x) => x.monthLabel !== entry.monthLabel);
             return [...filtered, entry].sort((a, b) => a.monthLabel.localeCompare(b.monthLabel));
         });
         setSavedFlash(true);
         setTimeout(() => setSavedFlash(false), 1800);
+    };
+    const nextMonthLabel = () => {
+        const m = String(data.monthLabel || '').match(/^(.+) (\d{4})$/);
+        if (!m)
+            return defaultMonthLabel;
+        const idx = monthNames.indexOf(m[1]);
+        if (idx < 0)
+            return defaultMonthLabel;
+        const y = Number(m[2]);
+        return `${monthNames[(idx + 1) % 12]} ${idx === 11 ? y + 1 : y}`;
+    };
+    const finishMonth = () => {
+        const entry = buildHistoryEntry();
+        setHistory((prev) => {
+            const filtered = prev.filter((x) => x.monthLabel !== entry.monthLabel);
+            return [...filtered, entry].sort((a, b) => a.monthLabel.localeCompare(b.monthLabel));
+        });
+        const nm = nextMonthLabel();
+        setData(prev => ({
+            ...initialMonth,
+            monthLabel: nm,
+            pocketMoneyEach: prev.pocketMoneyEach,
+            categories: Object.fromEntries(Object.entries(prev.categories).map(([k, c]) => [k, { label: c.label, target: c.target, startBalance: "" }])),
+        }));
+        setStep(1);
+        setEndSheet(false);
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 1800);
+    };
+    const loadMonth = (row) => {
+        if (!row || !row.snapshot)
+            return;
+        setData({ ...initialMonth, ...row.snapshot, schemaV: 2 });
+        setLoadRow(null);
+        goto('home');
     };
     const resetDefaults = () => {
         if (window.confirm("Er du sikker? Alle indtastninger for denne m\u00e5ned nulstilles. Gemte m\u00e5neder i historikken r\u00f8res ikke.")) {
@@ -18075,7 +18118,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement("h1", { className: "bb-homeh" }, "Fordelingen er klar")) : null,
                 React.createElement("button", { className: "bb-illuring", "aria-label": doneCount === 3 ? 'Se fordelingsplan' : 'Gå til næste trin', onClick: () => {
                         if (doneCount === 3) {
-                            showPlan();
+                            setEndSheet(true);
                             return;
                         }
                         setStep(!step1Done ? 1 : (!step2Done ? 2 : 3));
@@ -18126,11 +18169,14 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("div", { className: "bb-cardfoot" },
                             React.createElement("button", { className: "bb-mini", onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem i historik'),
                             React.createElement("button", { className: "bb-mini danger", onClick: resetDefaults }, "Nulstil m\u00E5ned"))),
+                    React.createElement("div", { className: "bb-homemeta" }, "Tryk p\u00E5 fluebenet for at afslutte m\u00E5neden og starte en ny"),
                     React.createElement("div", { className: "bb-homespacer" }),
                     React.createElement("button", { className: "bb-cta", onClick: showPlan },
                         "Se fordelingsplan ",
                         React.createElement("span", null, "\u2192")),
-                    React.createElement("button", { className: "bb-ghost full", onClick: () => { setStep(3); goto('input'); } }, "Ret indtastning")) : null) : null,
+                    React.createElement("div", { className: "bb-navrow" },
+                        React.createElement("button", { className: "bb-ghost", onClick: () => { setStep(3); goto('input'); } }, "Ret indtastning"),
+                        React.createElement("button", { className: "bb-ghost go2", onClick: () => setEndSheet(true) }, "Gem og start ny m\u00E5ned \u2192"))) : null) : null,
             screen === 'input' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-stepper" }, [['Indkomst', step1Done], ['Behov', step2Done], ['Udlæg', step3Done]].map(([lbl, done], i) => {
                     const n = i + 1;
@@ -18216,7 +18262,19 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                             React.createElement("span", null, "\u2192")))) : null) : null,
             screen === 'transfers' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-eyebrow" }, "Fordelingsplan"),
-                React.createElement("h2", { className: "bb-h2" }, "S\u00E5dan flytter I pengene"),
+                segTotal > 0 ? React.createElement("div", { className: "bb-card" },
+                    React.createElement("div", { className: "bb-cap" },
+                        React.createElement("b", null, "S\u00E5dan fordeles m\u00E5neden"),
+                        React.createElement("span", null,
+                            segs.length,
+                            " poster")),
+                    React.createElement("div", { className: "bb-flowbar" }, segs.map(sg => React.createElement("i", { key: sg.key, style: { width: `${(sg.amt / segTotal * 100)}%`, background: sg.color } }))),
+                    React.createElement("div", { className: "bb-legend" }, segs.map(sg => React.createElement("div", { key: sg.key, className: "bb-lrow" },
+                        React.createElement("span", { className: "bb-sw", style: { background: sg.color } }),
+                        React.createElement("span", { className: "bb-lnm" }, sg.label),
+                        React.createElement("span", { className: "bb-lvl" },
+                            React.createElement(AnimatedKr, { value: sg.amt, runId: countRun })))))) : null,
+                React.createElement("h2", { className: "bb-h2", style: { marginTop: 4 } }, "S\u00E5dan flytter I pengene"),
                 ['anders', 'tina'].map(pk => {
                     const t = calc.transfers[pk];
                     const name = data.people[pk].name;
@@ -18387,8 +18445,11 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("b", null, "Gemte m\u00E5neder"),
                         React.createElement("button", { className: "bb-mini", onClick: exportHistoryCsv }, "Eksport\u00E9r CSV")),
                     [...history].map((row) => React.createElement("div", { key: row.monthLabel, className: "bb-hrow" },
-                        React.createElement("div", { className: "bb-hmain" },
-                            React.createElement("div", { className: "bb-hmonth" }, row.monthLabel),
+                        React.createElement("button", { className: "bb-hmain", onClick: () => setLoadRow(row) },
+                            React.createElement("div", { className: "bb-hmonth" },
+                                row.monthLabel,
+                                " ",
+                                row.snapshot ? React.createElement("span", { className: "bb-hload" }, "\u00E5bn \u203A") : null),
                             React.createElement("div", { className: "bb-hdet" },
                                 "Indkomst ",
                                 formatCurrency(row.totalIncome),
@@ -18418,10 +18479,47 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
         revealing ? React.createElement("div", { className: "bb-reveal" },
             React.createElement("div", { className: "bb-spin" }),
             React.createElement("div", { className: "bb-revtxt" }, "Fordeler m\u00E5nedens indkomst\u2026")) : null,
-        screen === 'home' && !sheet && !drawer && !monthSheet ? React.createElement("button", { className: "bb-peek", "aria-label": "Nyt udl\u00E6g", onClick: openQuick },
-            React.createElement("span", { className: "bb-peekplus" },
-                React.createElement(Icon, { name: "plus" })),
-            React.createElement("span", { className: "bb-peektxt" }, "Udl\u00E6g")) : null,
+        endSheet ? React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "bb-scrim", onClick: () => setEndSheet(false) }),
+            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Afslut m\u00E5ned" },
+                React.createElement("div", { className: "bb-sheethandle" }),
+                React.createElement("h3", { className: "bb-h3" },
+                    "Afslut ",
+                    data.monthLabel,
+                    "?"),
+                React.createElement("p", { className: "bb-note" },
+                    "Hele fordelingen gemmes i historikken, og ",
+                    React.createElement("b", null, nextMonthLabel()),
+                    " startes med jeres faste bel\u00F8b. Indkomst, udl\u00E6g og Mastercard nulstilles."),
+                React.createElement("button", { className: "bb-cta go", onClick: finishMonth },
+                    "Gem og start ",
+                    nextMonthLabel(),
+                    " ",
+                    React.createElement("span", null, "\u2192")),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => setEndSheet(false) }, "Annull\u00E9r"))) : null,
+        loadRow ? React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "bb-scrim", onClick: () => setLoadRow(null) }),
+            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Indl\u00E6s m\u00E5ned" },
+                React.createElement("div", { className: "bb-sheethandle" }),
+                React.createElement("h3", { className: "bb-h3" },
+                    "Indl\u00E6s ",
+                    loadRow.monthLabel,
+                    "?"),
+                loadRow.snapshot
+                    ? React.createElement(React.Fragment, null,
+                        React.createElement("p", { className: "bb-note" },
+                            "Fordelingen og det grafiske overblik for ",
+                            loadRow.monthLabel,
+                            " vises i appen. Dine nuv\u00E6rende indtastninger for ",
+                            React.createElement("b", null, data.monthLabel),
+                            " erstattes \u2014 gem dem f\u00F8rst, hvis de skal bevares."),
+                        React.createElement("button", { className: "bb-cta", onClick: () => loadMonth(loadRow) },
+                            "Indl\u00E6s ",
+                            loadRow.monthLabel,
+                            " ",
+                            React.createElement("span", null, "\u2192")))
+                    : React.createElement("p", { className: "bb-note" }, "Denne m\u00E5ned er gemt f\u00F8r fuld indl\u00E6sning blev muligt, s\u00E5 kun n\u00F8gletallene findes. Gem fremtidige m\u00E5neder via fluebenet p\u00E5 forsiden, s\u00E5 kan de \u00E5bnes helt."),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => setLoadRow(null) }, "Luk"))) : null,
         sheet ? React.createElement(React.Fragment, null,
             React.createElement("div", { className: "bb-scrim", onClick: () => setSheet(false) }),
             React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Nyt udl\u00E6g" },
