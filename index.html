@@ -217,6 +217,30 @@
     .bb-hmonth{font-weight:700;font-size:14.5px}
     .bb-hdet{font-size:11.5px;color:var(--muted);margin-top:1px}
 
+    /* Home (state-aware) */
+    .bb-homec{align-items:center;text-align:center}
+    .bb-illuring{position:relative;margin-top:2px}
+    .bb-ringlbl{position:absolute;left:50%;transform:translateX(-50%);bottom:26px;width:130px}
+    .bb-ringlbl b{font-family:var(--serif);font-size:26px;font-weight:700;display:block;line-height:1}
+    .bb-ringlbl b small{font-size:14px;color:#9AA7B8;font-weight:700}
+    .bb-ringlbl span{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+    .bb-homeh{font-family:var(--serif);font-size:29px;font-weight:700;line-height:1.15;margin-top:4px}
+    .bb-homep{font-size:14.5px;color:var(--muted);line-height:1.55;max-width:330px;margin-top:8px}
+    .bb-homemeta{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:12px}
+    .bb-homespacer{flex:1 1 auto;min-height:10px}
+    .bb-eyebrow.center{text-align:center}
+    .bb-mini.center{align-self:center;margin-top:8px}
+    .bb-homec .bb-card{width:100%;text-align:left;margin-top:12px}
+
+    /* Reveal overlay */
+    .bb-reveal{position:fixed;inset:0;z-index:80;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+    .bb-spin{width:64px;height:64px;border-radius:50%;border:7px solid #DFE6EE;border-top-color:var(--teal);animation:bbspin .8s linear infinite}
+    @keyframes bbspin{to{transform:rotate(360deg)}}
+    .bb-revtxt{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink2)}
+
+    /* Drawer mini ring */
+    .bb-miniring{width:20px;height:20px;flex:0 0 auto}
+
     /* Peek FAB (live-chat style, hugs right edge) */
     .bb-peek{position:fixed;right:0;bottom:22px;z-index:30;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:14px 0 0 14px;padding:12px 12px 12px 14px;box-shadow:-8px 8px 24px -8px #14243d80;font-weight:700;font-size:13px}
     .bb-peekplus{width:21px;height:21px;border-radius:50%;background:var(--copper);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
@@ -17450,6 +17474,7 @@ const initialMonth = {
         emmaAsk: { label: "Emma aktiesparekonto", target: "", startBalance: "" },
     },
     foodOverdraft: "",
+    otherIncome: "",
     mastercardAmount: "",
     pocketMoneyEach: "",
     outlaysConfirmed: false,
@@ -17506,6 +17531,31 @@ function Field({ label, value, onChange, helper, type = "number", placeholder })
         React.createElement("input", { type: type, inputMode: type === 'number' ? 'decimal' : undefined, placeholder: placeholder, value: value, onChange: e => onChange(e.target.value) }),
         helper ? React.createElement("div", { className: "bb-help" }, helper) : null);
 }
+function AnimatedKr({ value, runId, fmt }) {
+    const [disp, setDisp] = useState(Number(value) || 0);
+    const lastRun = React.useRef(0);
+    useEffect(() => {
+        const to = Number(value) || 0;
+        if (!runId || runId === lastRun.current) {
+            setDisp(to);
+            return;
+        }
+        lastRun.current = runId;
+        let raf;
+        const t0 = performance.now();
+        const dur = 700;
+        const tick = (t) => {
+            const p = Math.min(1, (t - t0) / dur);
+            const e = 1 - Math.pow(1 - p, 3);
+            setDisp(Math.round(to * e));
+            if (p < 1)
+                raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [runId, value]);
+    return fmt ? fmt(disp) : new Intl.NumberFormat("da-DK").format(disp);
+}
 function App() {
     const [data, setData] = useState(() => {
         try {
@@ -17540,6 +17590,8 @@ function App() {
     const [copied, setCopied] = useState(false);
     const [copiedKey, setCopiedKey] = useState(null);
     const [smsTarget, setSmsTarget] = useState('all');
+    const [revealing, setRevealing] = useState(false);
+    const [countRun, setCountRun] = useState(0);
     const [savedFlash, setSavedFlash] = useState(false);
     const [qPerson, setQPerson] = useState('anders');
     const [qText, setQText] = useState('');
@@ -17619,8 +17671,11 @@ function App() {
             });
             return out;
         };
-        const andersIncome = toInt(data.people.anders.income);
-        const tinaIncome = toInt(data.people.tina.income);
+        const otherIncome = toInt(data.otherIncome);
+        const otherA = Math.ceil(otherIncome / 2);
+        const otherT = otherIncome - otherA;
+        const andersIncome = toInt(data.people.anders.income) + otherA;
+        const tinaIncome = toInt(data.people.tina.income) + otherT;
         const andersOutlays = toInt(sumOutlayLines(data.people.anders.outlayLines));
         const tinaOutlays = toInt(sumOutlayLines(data.people.tina.outlayLines));
         const totalOutlays = andersOutlays + tinaOutlays;
@@ -17689,7 +17744,7 @@ function App() {
             bufferMatchesGap: boligBufferTransfer === (boligBufferByCategory.regninger + boligBufferByCategory.afdragsfrihed + boligBufferByCategory.mad + boligBufferByCategory.albertAsk + boligBufferByCategory.emmaAsk),
         };
         return {
-            andersOutlays, tinaOutlays, totalIncome, totalOutlays,
+            andersOutlays, tinaOutlays, totalIncome, totalOutlays, otherIncome,
             regningerNeed, afdragsfrihed, madNeed, mastercardAmount,
             childrenSavings: albertAsk + emmaAsk,
             totalNeedBeforeBolig: totalMandatoryNeeds + pocketEach * 2,
@@ -17887,6 +17942,17 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
     const allOk = checksPassed === allChecks.length;
     const ready = step1Done && step2Done && allOk;
     const goto = (s) => { setScreen(s); setDrawer(false); window.scrollTo(0, 0); };
+    const showPlan = () => {
+        setScreen('transfers');
+        setDrawer(false);
+        window.scrollTo(0, 0);
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduce) {
+            setRevealing(true);
+            setCountRun(r => r + 1);
+            setTimeout(() => setRevealing(false), 950);
+        }
+    };
     const toggleTransferDone = (key) => setData(prev => ({ ...prev, transfersDone: { ...(prev.transfersDone || {}), [key]: !(prev.transfersDone || {})[key] } }));
     const copyAmount = async (key, amt) => {
         try {
@@ -17920,7 +17986,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
         { key: 'ask', label: 'Børneopsparing', color: '#B96A34', amt: calc.transfers.anders.albertAsk + calc.transfers.tina.albertAsk + calc.transfers.anders.emmaAsk + calc.transfers.tina.emmaAsk },
         { key: 'bolig', label: 'Boligopsparing', color: '#2E7D6B', amt: calc.actualBoligContribution },
         { key: 'pocket', label: 'Lommepenge', color: '#D79A6B', amt: calc.pocketEach * 2 },
-        { key: 'outlays', label: 'Udlæg (beholdes)', color: '#9BB0C6', amt: calc.totalOutlays },
+        { key: 'outlays', label: 'Refunderede udlæg', color: '#9BB0C6', amt: calc.totalOutlays },
     ].filter(s => s.amt > 0);
     const segTotal = segs.reduce((a, b) => a + b.amt, 0);
     const missing = [];
@@ -17975,51 +18041,85 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement("span", { className: "bb-npt" },
                         doneCount,
                         " af 3"),
-                    React.createElement("span", { className: "bb-track" },
-                        React.createElement("i", { style: { width: `${Math.round(doneCount / 3 * 100)}%` } }))) : null)),
+                    React.createElement("svg", { className: "bb-miniring", viewBox: "0 0 22 22", "aria-hidden": "true" },
+                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#EAD9C8", strokeWidth: "3.5" }),
+                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#B96A34", strokeWidth: "3.5", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 53.4} 53.4`, transform: "rotate(-90 11 11)" }))) : null)),
             React.createElement("button", { className: "bb-quickitem", onClick: openQuick },
                 React.createElement("span", { className: "bb-qp" },
                     React.createElement(Icon, { name: "plus" })),
                 " Nyt udl\u00E6g"),
             React.createElement("div", { className: "bb-navfoot" }, "Alt gemmes automatisk p\u00E5 din enhed")),
         React.createElement("main", { className: "bb-main" },
-            screen === 'home' ? React.createElement("div", { className: "bb-screen" },
-                ready
-                    ? React.createElement("div", { className: "bb-chip ok" },
-                        React.createElement("span", { className: "bb-tick" },
-                            React.createElement(Icon, { name: "check" })),
-                        " Klar til fordeling")
-                    : React.createElement("div", { className: "bb-chip warn" },
-                        React.createElement("span", { className: "bb-tick w" }, "!"),
-                        " Mangler: ",
-                        missing.length ? missing.slice(0, 2).join(', ') + (missing.length > 2 ? ' …' : '') : 'kontroltjek'),
-                React.createElement("div", { className: "bb-headline" },
-                    React.createElement("span", { className: "bb-hl" },
-                        "Til fordeling i ",
-                        selectedMonth ? selectedMonth.toLowerCase() : 'måneden'),
-                    React.createElement("span", { className: "bb-amt" },
-                        new Intl.NumberFormat('da-DK').format(calc.totalIncome),
-                        React.createElement("span", { className: "bb-kr" }, "kr"))),
-                React.createElement("div", { className: "bb-card" },
-                    React.createElement("div", { className: "bb-cap" },
-                        React.createElement("b", null, "S\u00E5dan fordeles m\u00E5neden"),
-                        React.createElement("span", null,
-                            segs.length,
-                            " poster")),
-                    segTotal > 0 ? React.createElement(React.Fragment, null,
-                        React.createElement("div", { className: "bb-flowbar" }, segs.map(s => React.createElement("i", { key: s.key, style: { width: `${(s.amt / segTotal * 100)}%`, background: s.color } }))),
-                        React.createElement("div", { className: "bb-legend" }, segs.map(s => React.createElement("div", { key: s.key, className: "bb-lrow" },
-                            React.createElement("span", { className: "bb-sw", style: { background: s.color } }),
-                            React.createElement("span", { className: "bb-lnm" }, s.label),
-                            React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(s.amt)))))) : React.createElement("div", { className: "bb-empty" }, "Indtast m\u00E5nedens indkomst og behov, s\u00E5 tegnes fordelingen her."),
-                    React.createElement("div", { className: "bb-cardfoot" },
-                        React.createElement("button", { className: "bb-mini", disabled: calc.totalIncome === 0, onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem i historik'),
-                        React.createElement("button", { className: "bb-mini danger", onClick: resetDefaults }, "Nulstil m\u00E5ned"))),
-                React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(1); goto('input'); } },
-                    "Start m\u00E5nedens fordeling ",
-                    React.createElement("span", null, "\u2192")),
-                React.createElement("button", { className: "bb-ghost full", onClick: () => goto('transfers') }, "Se fordelingsplan"),
-                React.createElement("p", { className: "bb-note" }, "Alle indtastninger gemmes automatisk p\u00E5 denne enhed \u2013 du kan trygt lukke appen og forts\u00E6tte senere.")) : null,
+            screen === 'home' ? React.createElement("div", { className: "bb-screen bb-homec" },
+                React.createElement("div", { className: "bb-illuring" },
+                    React.createElement("svg", { width: "250", height: "240", viewBox: "0 0 280 268", "aria-hidden": "true" },
+                        React.createElement("circle", { cx: "86", cy: "34", r: "24", fill: "#14243D" }),
+                        React.createElement("text", { x: "86", y: "41", textAnchor: "middle", fontFamily: "Caladea, Cambria, serif", fontSize: "17", fontWeight: "700", fill: "#fff" }, "A"),
+                        React.createElement("circle", { cx: "194", cy: "34", r: "24", fill: "#B96A34" }),
+                        React.createElement("text", { x: "194", y: "41", textAnchor: "middle", fontFamily: "Caladea, Cambria, serif", fontSize: "17", fontWeight: "700", fill: "#fff" }, "T"),
+                        React.createElement("path", { d: "M86 62 C86 96 116 96 128 122", stroke: doneCount > 0 ? '#14243D' : '#9BB0C6', strokeWidth: "3.5", fill: "none" }),
+                        React.createElement("path", { d: "M194 62 C194 96 164 96 152 122", stroke: doneCount > 0 ? '#B96A34' : '#D9A878', strokeWidth: "3.5", fill: "none" }),
+                        React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "#fff" }),
+                        React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#DFE6EE", strokeWidth: "11" }),
+                        doneCount === 3
+                            ? React.createElement(React.Fragment, null,
+                                React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#2E7D6B", strokeWidth: "11" }),
+                                React.createElement("path", { d: "M114 190 l17 17 34-38", stroke: "#2E7D6B", strokeWidth: "10", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" }))
+                            : (doneCount > 0
+                                ? React.createElement("circle", { cx: "140", cy: "188", r: "66", fill: "none", stroke: "#2E7D6B", strokeWidth: "11", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 414.7} 414.7`, transform: "rotate(-90 140 188)" })
+                                : null)),
+                    doneCount < 3 ? React.createElement("div", { className: "bb-ringlbl" },
+                        React.createElement("b", null,
+                            doneCount,
+                            React.createElement("small", null, " af 3")),
+                        React.createElement("span", null, "TRIN FULDF\u00D8RT")) : null),
+                doneCount === 0 ? React.createElement(React.Fragment, null,
+                    React.createElement("h1", { className: "bb-homeh" },
+                        "To l\u00F8nninger.",
+                        React.createElement("br", null),
+                        "\u00C9n ligev\u00E6rdig fordeling."),
+                    React.createElement("p", { className: "bb-homep" }, "BudgetBuddy samler m\u00E5nedens indkomst og fordeler den til jeres f\u00E6lles poster \u2014 klar til at overf\u00F8re i mobilbanken."),
+                    React.createElement("div", { className: "bb-homemeta" }, "Ca. 5 minutter \u00B7 alt bliver p\u00E5 telefonen"),
+                    React.createElement("div", { className: "bb-homespacer" }),
+                    React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(1); goto('input'); } },
+                        "Start m\u00E5nedens fordeling ",
+                        React.createElement("span", null, "\u2192"))) : null,
+                doneCount > 0 && doneCount < 3 ? React.createElement(React.Fragment, null,
+                    data.monthLabel ? React.createElement("div", { className: "bb-eyebrow center" }, data.monthLabel) : null,
+                    React.createElement("h1", { className: "bb-homeh" }, "Godt i gang"),
+                    React.createElement("p", { className: "bb-homep" }, !step1Done ? 'Mangler måned eller indkomst — start med trin 1.' : (!step2Done ? 'Indkomsten er på plads. Mangler de faste behov.' : 'Indkomst og faste behov er på plads. Mangler kun månedens udlæg — så er fordelingen klar.')),
+                    React.createElement("div", { className: "bb-homespacer" }),
+                    React.createElement("button", { className: "bb-cta go", onClick: () => { setStep(!step1Done ? 1 : (!step2Done ? 2 : 3)); goto('input'); } },
+                        "Forts\u00E6t: ",
+                        !step1Done ? 'Indkomst' : (!step2Done ? 'Behov' : 'Udlæg'),
+                        " ",
+                        React.createElement("span", null, "\u2192")),
+                    React.createElement("button", { className: "bb-mini danger center", onClick: resetDefaults }, "Nulstil m\u00E5ned")) : null,
+                doneCount === 3 ? React.createElement(React.Fragment, null,
+                    React.createElement("div", { className: "bb-eyebrow center" },
+                        data.monthLabel,
+                        " \u00B7 ",
+                        formatCurrency(calc.totalIncome)),
+                    React.createElement("h1", { className: "bb-homeh" }, "Fordelingen er klar"),
+                    React.createElement("div", { className: "bb-card" },
+                        React.createElement("div", { className: "bb-cap" },
+                            React.createElement("b", null, "S\u00E5dan fordeles m\u00E5neden"),
+                            React.createElement("span", null,
+                                segs.length,
+                                " poster")),
+                        React.createElement("div", { className: "bb-flowbar" }, segs.map(sg => React.createElement("i", { key: sg.key, style: { width: `${(sg.amt / segTotal * 100)}%`, background: sg.color } }))),
+                        React.createElement("div", { className: "bb-legend" }, segs.map(sg => React.createElement("div", { key: sg.key, className: "bb-lrow" },
+                            React.createElement("span", { className: "bb-sw", style: { background: sg.color } }),
+                            React.createElement("span", { className: "bb-lnm" }, sg.label),
+                            React.createElement("span", { className: "bb-lvl" }, new Intl.NumberFormat('da-DK').format(sg.amt))))),
+                        React.createElement("div", { className: "bb-cardfoot" },
+                            React.createElement("button", { className: "bb-mini", onClick: saveCurrentMonth }, savedFlash ? 'Gemt ✓' : 'Gem i historik'),
+                            React.createElement("button", { className: "bb-mini danger", onClick: resetDefaults }, "Nulstil m\u00E5ned"))),
+                    React.createElement("div", { className: "bb-homespacer" }),
+                    React.createElement("button", { className: "bb-cta", onClick: showPlan },
+                        "Se fordelingsplan ",
+                        React.createElement("span", null, "\u2192")),
+                    React.createElement("button", { className: "bb-ghost full", onClick: () => { setStep(3); goto('input'); } }, "Ret indtastning")) : null) : null,
             screen === 'input' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-stepper" }, [['Indkomst', step1Done], ['Behov', step2Done], ['Udlæg', step3Done]].map(([lbl, done], i) => {
                     const n = i + 1;
@@ -18049,6 +18149,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                                 React.createElement("select", { value: selectedYear, onChange: e => updateMonthYear(selectedMonth, e.target.value) }, yearOptions.map((y) => React.createElement("option", { key: y, value: y }, y))))),
                         React.createElement(Field, { label: "Anders' indkomst", value: data.people.anders.income, onChange: (v) => setPersonField('anders', 'income', v) }),
                         React.createElement(Field, { label: "Tinas indkomst", value: data.people.tina.income, onChange: (v) => setPersonField('tina', 'income', v) }),
+                        React.createElement(Field, { label: "\u00D8vrig f\u00E6lles indkomst", value: data.otherIncome, onChange: (v) => setData(prev => ({ ...prev, otherIncome: v })), helper: "Fx salg af gamle ting eller Airbnb-udlejning. Deles ligeligt mellem jer i beregningen." }),
                         React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Disse penge bliver st\u00E5ende p\u00E5 hver persons l\u00F8nkonto." }),
                         React.createElement("div", { className: "bb-subtot" },
                             React.createElement("span", null, "Samlet indkomst"),
@@ -18096,7 +18197,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                             React.createElement("b", null, formatCurrency(pk === 'anders' ? calc.andersOutlays : calc.tinaOutlays))))),
                     React.createElement("div", { className: "bb-navrow" },
                         React.createElement("button", { className: "bb-ghost", onClick: () => setStep(2) }, "\u2190 Behov"),
-                        React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); goto('transfers'); } },
+                        React.createElement("button", { className: "bb-cta", onClick: () => { setData(prev => ({ ...prev, outlaysConfirmed: true })); showPlan(); } },
                             "F\u00E6rdig \u2014 se plan ",
                             React.createElement("span", null, "\u2192")))) : null) : null,
             screen === 'transfers' ? React.createElement("div", { className: "bb-screen" },
@@ -18111,7 +18212,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                             React.createElement("span", { className: "bb-gdot", style: { background: pk === 'anders' ? '#14243D' : '#B96A34' } }),
                             name,
                             " overf\u00F8rer \u00B7 i alt ",
-                            formatCurrency(t.total)),
+                            React.createElement(AnimatedKr, { value: t.total, runId: countRun, fmt: formatCurrency })),
                         [
                             ['regninger', 'Fælleskonto til regninger', t.regninger],
                             ['afdragsfrihed', 'Fælleskonto til opsparing afdragsfrihed', t.afdragsfrihed],
@@ -18132,7 +18233,8 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                                         name,
                                         pk === 'anders' ? "'" : "s",
                                         " l\u00F8nkonto")),
-                                React.createElement("span", { className: "bb-tamt" }, new Intl.NumberFormat('da-DK').format(amt)),
+                                React.createElement("span", { className: "bb-tamt" },
+                                    React.createElement(AnimatedKr, { value: amt, runId: countRun })),
                                 React.createElement("button", { className: `bb-cp ${copiedNow ? 'copied' : ''}`, "aria-label": `Kopiér ${amt}`, onClick: () => copyAmount(dkey, amt) }, copiedNow ? React.createElement(Icon, { name: "check" }) : React.createElement(Icon, { name: "copy" })));
                         }),
                         React.createElement("div", { className: "bb-pocketbox" },
@@ -18217,7 +18319,8 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                             React.createElement("span", null, "\u2192"))),
                     React.createElement("p", { className: "bb-note" },
                         "SMS \u00E5bnes med modtager og tekst udfyldt \u2014 du trykker bare send. ",
-                        smsTarget === 'all' ? 'Samlet sendes til både Anders og Tina.' : (smsTarget === 'anders' ? 'Sendes til Anders.' : 'Sendes til Tina.')))) : null,
+                        smsTarget === 'all' ? 'Samlet sendes til både Anders og Tina.' : (smsTarget === 'anders' ? 'Sendes til Anders.' : 'Sendes til Tina.'))),
+                React.createElement("button", { className: "bb-ghost full", onClick: () => goto('input') }, "\u2190 Tilbage til indtastning")) : null,
             screen === 'balances' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-eyebrow" }, "Konti"),
                 React.createElement("h2", { className: "bb-h2" }, "Forventede saldi efter fordeling"),
@@ -18298,6 +18401,9 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement(Field, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Albert." }),
                     React.createElement(Field, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Emma." }),
                     React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." }))) : null),
+        revealing ? React.createElement("div", { className: "bb-reveal" },
+            React.createElement("div", { className: "bb-spin" }),
+            React.createElement("div", { className: "bb-revtxt" }, "Fordeler m\u00E5nedens indkomst\u2026")) : null,
         screen === 'home' && !sheet && !drawer && !monthSheet ? React.createElement("button", { className: "bb-peek", "aria-label": "Nyt udl\u00E6g", onClick: openQuick },
             React.createElement("span", { className: "bb-peekplus" },
                 React.createElement(Icon, { name: "plus" })),
