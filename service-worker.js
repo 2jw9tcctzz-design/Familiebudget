@@ -1,6 +1,6 @@
 // BudgetBuddy service worker — offline caching
 // Bump CACHE_VERSION whenever you upload a new index.html so phones fetch the update.
-const CACHE_VERSION = "budgetbuddy-v16";
+const CACHE_VERSION = "budgetbuddy-v17";
 const ASSETS = [
   "./index.html",
   "./manifest.json",

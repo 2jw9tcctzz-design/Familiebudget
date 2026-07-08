@@ -114,7 +114,7 @@
     .bb-snum{width:27px;height:27px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--card);border:1px solid var(--line);color:var(--muted)}
     .bb-snum svg{width:13px;height:13px}
     .bb-stx{font-size:13px;font-weight:700;color:var(--muted)}
-    .bb-step.on .bb-snum{background:var(--copper);border-color:var(--copper);color:#fff}
+    .bb-step.on .bb-snum{background:#fff;border:2px solid var(--copper);color:var(--copper-deep);font-weight:800}
     .bb-step.on .bb-stx{color:var(--ink)}
     .bb-step.done .bb-snum{background:var(--teal);border-color:var(--teal);color:#fff}
     .bb-step.done .bb-stx{color:var(--teal)}
@@ -221,7 +221,7 @@
 
     /* Home (state-aware) */
     .bb-homec{align-items:center;text-align:center}
-    .bb-illuring{position:relative;margin-top:14px}
+    .bb-illuring{position:relative;margin-top:40px;background:none;border:none;padding:0;cursor:pointer;display:block}
     .bb-homeeye{margin-top:22px}
     .bb-ringlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
     .bb-ringlbl b{font-family:var(--serif);font-size:26px;font-weight:700;display:block;line-height:1}
@@ -17462,8 +17462,12 @@ const parse = (value) => {
 };
 const round = (n) => Math.round((Number(n) || 0) * 100) / 100;
 const sumOutlayLines = (lines = []) => lines.reduce((sum, line) => sum + parse(line.amount), 0);
+const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
+const currentYear = new Date().getFullYear();
+const yearOptions = Array.from({ length: 9 }, (_, i) => String(currentYear - 2 + i));
+const defaultMonthLabel = `${monthNames[new Date().getMonth()]} ${currentYear}`;
 const initialMonth = {
-    monthLabel: "",
+    monthLabel: defaultMonthLabel,
     people: {
         anders: { name: "Anders", income: "", outlayLines: [{ id: "a1", text: "", amount: "" }] },
         tina: { name: "Tina", income: "", outlayLines: [{ id: "t1", text: "", amount: "" }] },
@@ -17482,15 +17486,13 @@ const initialMonth = {
     pocketMoneyEach: "",
     outlaysConfirmed: false,
     transfersDone: {},
+    schemaV: 2,
 };
 const sampleHistory = [
     { monthLabel: "Januar 2026", totalIncome: 76500, totalNeedBeforeBolig: 73500, boligAmount: 3000, mastercard: 4200, foodOverdraft: 0, outlays: 1200, equalLeftEach: 1500 },
     { monthLabel: "Februar 2026", totalIncome: 78200, totalNeedBeforeBolig: 75600, boligAmount: 2600, mastercard: 5100, foodOverdraft: 700, outlays: 800, equalLeftEach: 1500 },
 ];
 const PHONES = { anders: "+4526818455", tina: "+4531237426" };
-const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
-const currentYear = new Date().getFullYear();
-const yearOptions = Array.from({ length: 9 }, (_, i) => String(currentYear - 2 + i));
 /* ---------- small building blocks ---------- */
 function Icon({ name }) {
     const p = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
@@ -17565,8 +17567,15 @@ function App() {
             const raw = localStorage.getItem("familie-budget-current-v1");
             if (raw) {
                 const parsed = JSON.parse(raw);
-                if (parsed && parsed.people && parsed.categories)
+                if (parsed && parsed.people && parsed.categories) {
+                    if (parsed.schemaV !== 2) {
+                        parsed.outlaysConfirmed = false; // v14 auto-set this; semantic changed
+                        if (!parsed.monthLabel)
+                            parsed.monthLabel = defaultMonthLabel;
+                        parsed.schemaV = 2;
+                    }
                     return { ...initialMonth, ...parsed };
+                }
             }
         }
         catch { }
@@ -18022,11 +18031,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
             React.createElement("button", { className: "bb-wordmark", onClick: () => goto('home'), "aria-label": "Til forsiden" },
                 "BudgetBuddy",
                 React.createElement("span", { className: "bb-dot" }, ".")),
-            React.createElement("button", { className: "bb-monthpill", onClick: () => setMonthSheet(true), "aria-label": "Om m\u00E5neden" },
-                data.monthLabel || 'Ingen måned',
-                " ",
-                React.createElement("span", { className: "bb-chev" },
-                    React.createElement(Icon, { name: "chev" })))),
+            React.createElement("div", { style: { width: 42 }, "aria-hidden": "true" })),
         drawer ? React.createElement("div", { className: "bb-scrim", onClick: () => setDrawer(false) }) : null,
         React.createElement("nav", { className: `bb-drawer ${drawer ? 'open' : ''}`, "aria-hidden": !drawer },
             React.createElement("div", { className: "bb-brand" },
@@ -18041,12 +18046,12 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement(Icon, { name: ic })),
                 label,
                 k === 'input' ? React.createElement("span", { className: "bb-navprog" },
-                    React.createElement("span", { className: "bb-npt" },
+                    React.createElement("span", { className: "bb-npt", style: { color: "#2E7D6B" } },
                         doneCount,
                         " af 3"),
                     React.createElement("svg", { className: "bb-miniring", viewBox: "0 0 22 22", "aria-hidden": "true" },
-                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#EAD9C8", strokeWidth: "3.5" }),
-                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#B96A34", strokeWidth: "3.5", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 53.4} 53.4`, transform: "rotate(-90 11 11)" }))) : null)),
+                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#D6E7E2", strokeWidth: "3.5" }),
+                        React.createElement("circle", { cx: "11", cy: "11", r: "8.5", fill: "none", stroke: "#2E7D6B", strokeWidth: "3.5", strokeLinecap: "round", strokeDasharray: `${(doneCount / 3) * 53.4} 53.4`, transform: "rotate(-90 11 11)" }))) : null)),
             React.createElement("button", { className: "bb-quickitem", onClick: openQuick },
                 React.createElement("span", { className: "bb-qp" },
                     React.createElement(Icon, { name: "plus" })),
@@ -18068,7 +18073,14 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         " \u00B7 ",
                         formatCurrency(calc.totalIncome)),
                     React.createElement("h1", { className: "bb-homeh" }, "Fordelingen er klar")) : null,
-                React.createElement("div", { className: "bb-illuring" },
+                React.createElement("button", { className: "bb-illuring", "aria-label": doneCount === 3 ? 'Se fordelingsplan' : 'Gå til næste trin', onClick: () => {
+                        if (doneCount === 3) {
+                            showPlan();
+                            return;
+                        }
+                        setStep(!step1Done ? 1 : (!step2Done ? 2 : 3));
+                        goto('input');
+                    } },
                     React.createElement("svg", { width: "222", height: "222", viewBox: "0 0 210 210", "aria-hidden": "true" },
                         React.createElement("circle", { cx: "105", cy: "105", r: "92", fill: "none", stroke: "#DFE6EE", strokeWidth: "14" }),
                         React.createElement("circle", { cx: "105", cy: "105", r: "72", fill: "#fff" }),
@@ -18423,25 +18435,7 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement("label", null, "Bel\u00F8b"),
                     React.createElement("input", { type: "number", inputMode: "decimal", placeholder: "0", value: qAmount, onChange: e => setQAmount(e.target.value) })),
                 React.createElement("button", { className: "bb-cta", onClick: saveQuick }, "Gem udl\u00E6g"),
-                React.createElement("button", { className: "bb-ghost full", onClick: () => setSheet(false) }, "Annull\u00E9r"))) : null,
-        monthSheet ? React.createElement(React.Fragment, null,
-            React.createElement("div", { className: "bb-scrim", onClick: () => setMonthSheet(false) }),
-            React.createElement("div", { className: "bb-sheet", role: "dialog", "aria-label": "Om m\u00E5neden" },
-                React.createElement("div", { className: "bb-sheethandle" }),
-                React.createElement("h3", { className: "bb-h3" }, data.monthLabel ? `Du arbejder med ${data.monthLabel}` : 'Ingen måned valgt endnu'),
-                React.createElement("p", { className: "bb-note" },
-                    "Forsiden viser altid den m\u00E5ned, du er i gang med. M\u00E5neden v\u00E6lges som f\u00F8rste trin under ",
-                    React.createElement("b", null, "Indtastning"),
-                    "."),
-                React.createElement("p", { className: "bb-note" },
-                    "Vil du se en tidligere m\u00E5ned? Gemte m\u00E5neder ligger under ",
-                    React.createElement("b", null, "Dashboard \u2192 Gemte m\u00E5neder"),
-                    "."),
-                React.createElement("button", { className: "bb-cta", onClick: () => { setMonthSheet(false); setStep(1); goto('input'); } },
-                    data.monthLabel ? 'Skift måned i Indtastning' : 'Vælg måned i Indtastning',
-                    " ",
-                    React.createElement("span", null, "\u2192")),
-                React.createElement("button", { className: "bb-ghost full", onClick: () => setMonthSheet(false) }, "Luk"))) : null);
+                React.createElement("button", { className: "bb-ghost full", onClick: () => setSheet(false) }, "Annull\u00E9r"))) : null);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App, null));
 
