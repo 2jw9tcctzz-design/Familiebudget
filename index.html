@@ -108,6 +108,7 @@
     .bb-hload{font-size:11px;font-weight:700;color:var(--copper-deep);margin-left:6px}
     .bb-note{font-size:12.5px;color:var(--muted);line-height:1.45}
     .bb-note.top{margin-top:-6px}
+    .bb-linkbtn{font-size:12.5px;line-height:1.45;color:var(--copper-deep);font-weight:700;text-decoration:underline;text-align:left;padding:6px 0 0;display:block}
 
     .bb-navrow{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:stretch}
     .bb-navrow .bb-ghost{white-space:nowrap}
@@ -17496,7 +17497,9 @@ const sampleHistory = [
     { monthLabel: "Januar 2026", totalIncome: 76500, totalNeedBeforeBolig: 73500, boligAmount: 3000, mastercard: 4200, foodOverdraft: 0, outlays: 1200, equalLeftEach: 1500 },
     { monthLabel: "Februar 2026", totalIncome: 78200, totalNeedBeforeBolig: 75600, boligAmount: 2600, mastercard: 5100, foodOverdraft: 700, outlays: 800, equalLeftEach: 1500 },
 ];
-const PHONES = { anders: "+4526818455", tina: "+4531237426" };
+/* Mobilnumre står IKKE i koden — de tastes ind under Opsætning og bliver på telefonen.
+   Koden her ligger offentligt på GitHub; det gør numrene ikke. */
+const initialPhones = { anders: "", tina: "" };
 /* ---------- small building blocks ---------- */
 function Icon({ name }) {
     const p = { fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
@@ -17597,6 +17600,18 @@ function App() {
         catch { }
         return sampleHistory;
     });
+    const [phones, setPhones] = useState(() => {
+        try {
+            const raw = localStorage.getItem("familie-budget-numre-v1");
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object')
+                    return { ...initialPhones, ...parsed };
+            }
+        }
+        catch { }
+        return initialPhones;
+    });
     const [screen, setScreen] = useState('home');
     const [drawer, setDrawer] = useState(false);
     const [step, setStep] = useState(1);
@@ -17626,6 +17641,12 @@ function App() {
         }
         catch { }
     }, [history]);
+    useEffect(() => {
+        try {
+            localStorage.setItem("familie-budget-numre-v1", JSON.stringify(phones));
+        }
+        catch { }
+    }, [phones]);
     /* ---------- CALC ENGINE — ported verbatim ---------- */
     const calc = useMemo(() => {
         const toInt = (v) => Math.round(parse(v));
@@ -17957,7 +17978,8 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
             await navigator.clipboard.writeText(text);
         }
         catch { }
-        const to = t === 'all' ? `${PHONES.anders},${PHONES.tina}` : PHONES[t];
+        const numre = (t === 'all' ? [phones.anders, phones.tina] : [phones[t]]).map(n => String(n || '').trim()).filter(Boolean);
+        const to = numre.join(',');
         const href = `sms:${to}?&body=${encodeURIComponent(text)}`;
         window.__lastSmsHref = href;
         window.location.href = href;
@@ -18064,6 +18086,10 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
         ['setup', 'Opsætning', 'gear'],
     ];
     const screenTitle = { home: 'Overblik', input: 'Indtastning', transfers: 'Overførsler', balances: 'Konti', dashboard: 'Dashboard', setup: 'Opsætning' }[screen];
+    /* hvem mangler et mobilnummer for den valgte modtager? */
+    const manglerNumre = (smsTarget === 'all' ? ['anders', 'tina'] : [smsTarget])
+        .filter(k => !String(phones[k] || '').trim())
+        .map(k => data.people[k].name);
     /* ---------- render ---------- */
     return React.createElement("div", { className: "bb-app" },
         React.createElement("header", { className: "bb-appbar" },
@@ -18389,9 +18415,16 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                         React.createElement("button", { className: "bb-cta compact", onClick: () => openSmsPlan() },
                             "Send som SMS ",
                             React.createElement("span", null, "\u2192"))),
-                    React.createElement("p", { className: "bb-note" },
-                        "SMS \u00E5bnes med modtager og tekst udfyldt \u2014 du trykker bare send. ",
-                        smsTarget === 'all' ? 'Samlet sendes til både Anders og Tina.' : (smsTarget === 'anders' ? 'Sendes til Anders.' : 'Sendes til Tina.'))),
+                    manglerNumre.length === 0
+                        ? React.createElement("p", { className: "bb-note" },
+                            "SMS \u00E5bnes med modtager og tekst udfyldt \u2014 du trykker bare send. ",
+                            smsTarget === 'all' ? `Samlet sendes til både ${data.people.anders.name} og ${data.people.tina.name}.` : `Sendes til ${data.people[smsTarget].name}.`)
+                        : React.createElement(React.Fragment, null,
+                            React.createElement("p", { className: "bb-note" }, "SMS \u00E5bnes med teksten udfyldt, men uden modtager \u2014 du v\u00E6lger selv, hvem den skal til i Beskeder."),
+                            React.createElement("button", { className: "bb-linkbtn", onClick: () => goto('setup') },
+                                "Gem mobilnummer for ",
+                                manglerNumre.join(' og '),
+                                " \u2192"))),
                 React.createElement("button", { className: "bb-ghost full", onClick: () => goto('input') }, "\u2190 Tilbage til indtastning")) : null,
             screen === 'balances' ? React.createElement("div", { className: "bb-screen" },
                 React.createElement("div", { className: "bb-eyebrow" }, "Konti"),
@@ -18475,7 +18508,13 @@ ${formatCurrency(t.pocket)} bliver st\u00e5ende som lommepenge`;
                     React.createElement(Field, { label: "Mad og f\u00E6lles forbrug", value: data.categories.mad.target, onChange: (v) => setCategoryField('mad', 'target', v), helper: "Standardbel\u00F8b til f\u00E6lleskonto til mad. Eventuelt madovertr\u00E6k l\u00E6gges oveni." }),
                     React.createElement(Field, { label: "Albert aktiesparekonto", value: data.categories.albertAsk.target, onChange: (v) => setCategoryField('albertAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Albert." }),
                     React.createElement(Field, { label: "Emma aktiesparekonto", value: data.categories.emmaAsk.target, onChange: (v) => setCategoryField('emmaAsk', 'target', v), helper: "M\u00E5nedlig opsparing til Emma." }),
-                    React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." }))) : null),
+                    React.createElement(Field, { label: "Lommepenge pr. person", value: data.pocketMoneyEach, onChange: (v) => setData(prev => ({ ...prev, pocketMoneyEach: v })), helper: "Bel\u00F8bet der bliver st\u00E5ende p\u00E5 hver l\u00F8nkonto efter fordelingen." })),
+                React.createElement("h2", { className: "bb-h2" }, "Mobilnumre til SMS"),
+                React.createElement("p", { className: "bb-note top" }, "Bruges kun til at udfylde modtageren, n\u00E5r du sender fordelingsplanen som SMS. Numrene gemmes p\u00E5 denne telefon og st\u00E5r ikke i appens kode."),
+                React.createElement("div", { className: "bb-card pad" },
+                    React.createElement(Field, { label: `${data.people.anders.name}' mobilnummer`, type: "tel", placeholder: "+45 12 34 56 78", value: phones.anders, onChange: (v) => setPhones(prev => ({ ...prev, anders: v })) }),
+                    React.createElement(Field, { label: `${data.people.tina.name}s mobilnummer`, type: "tel", placeholder: "+45 12 34 56 78", value: phones.tina, onChange: (v) => setPhones(prev => ({ ...prev, tina: v })) }),
+                    React.createElement("p", { className: "bb-note" }, "Lad felterne st\u00E5 tomme, hvis du hellere selv vil v\u00E6lge modtageren i Beskeder."))) : null),
         revealing ? React.createElement("div", { className: "bb-reveal" },
             React.createElement("div", { className: "bb-spin" }),
             React.createElement("div", { className: "bb-revtxt" }, "Fordeler m\u00E5nedens indkomst\u2026")) : null,
